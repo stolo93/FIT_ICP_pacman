@@ -36,12 +36,13 @@ BreakInheritanceList: BeforeColon
 ColumnLimit: 120
 CompactNamespaces: false
 ContinuationIndentWidth: 8
+IncludeBlocks: Regroup
 IndentCaseLabels: true
 IndentPPDirectives: AfterHash
 IndentWidth: 4
 KeepEmptyLinesAtTheStartOfBlocks: true
 MaxEmptyLinesToKeep: 2
-NamespaceIndentation: All
+NamespaceIndentation: Inner
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
 PointerAlignment: Right

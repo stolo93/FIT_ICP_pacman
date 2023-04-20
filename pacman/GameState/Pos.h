@@ -9,21 +9,21 @@
 
 namespace game::internal
 {
+
+/// Creates a mask with first *n* bits set
+/// \tparam integral The integral type the mask is supposed to work on
+/// \param n THe numbers of bits to set to 1
+/// \return A *integral* with the first *n* bits set
+template<typename integral>
+    requires std::integral<integral>
+constexpr integral create_frac_mask(unsigned int n)
+{
+    if (n == 0) { return 0; }
+
+    return (1 << n) - 1;
+}
+
 #ifdef OVERFLOW_CHECKS
-template<typename T>
-    requires std::integral<T>
-constexpr bool would_left_shift_loose_bits(T value, unsigned int shift)
-{
-    return value > std::numeric_limits<T>::max() >> shift;
-}
-
-template<typename T>
-    requires std::integral<T>
-constexpr bool would_right_shift_loose_bits(T value, unsigned int shift)
-{
-    return value < std::numeric_limits<T>::max() >> shift;
-}
-
 template<typename T>
     requires std::integral<T>
 constexpr bool would_addition_overflow(T lhs, T rhs)
@@ -54,19 +54,6 @@ constexpr bool would_multiplication_overflow(T lhs, T rhs)
 }
 #endif
 
-/// Creates a mask with first *n* bits set
-/// \tparam integral The integral type the mask is supposed to work on
-/// \param n THe numbers of bits to set to 1
-/// \return A *integral* with the first *n* bits set
-template<typename integral>
-    requires std::integral<integral>
-consteval integral create_frac_mask(unsigned int n)
-{
-    if (n == 0) { return 0; }
-
-    return (1 << n) - 1;
-}
-
 }    // namespace game::internal
 
 namespace game
@@ -81,15 +68,25 @@ class FixedPointNum final
     Store store;
 
 public:
+    static constexpr unsigned int IntegerBits =
+            (sizeof(Store) * CHAR_BIT - binary_decimals) - std::numeric_limits<Store>::is_signed;
+
     // Initializes a fixed point number with a zero
     constexpr FixedPointNum() = default;
+
     // Implicitly convert integers into FixedPointNumbers for ease of use
     // NOLINTNEXTLINE(google-explicit-constructor)
     constexpr FixedPointNum(Store value)
     {
 #ifdef OVERFLOW_CHECKS
-        if (game::internal::would_left_shift_loose_bits(store, binary_decimals)) {
-            throw std::domain_error("Number to large to fit into fixed point number");
+        if (binary_decimals != 0) {
+            if (value > ((1ll << IntegerBits) - 1)) {
+                throw std::domain_error("Number to large to fit into fixed point number");
+            }
+
+            if (std::numeric_limits<Store>::is_signed && value < -(1ll << IntegerBits)) {
+                throw std::domain_error("Number to small to fit into fixed point number");
+            }
         }
 #endif
 
@@ -114,8 +111,13 @@ public:
         }
 #endif
 
-        return FixedPointNum<Store, binary_decimals>(store + value.store);
+        return from_bits(store + value.store);
     };
+
+    constexpr FixedPointNum<Store, binary_decimals> operator+(const Store rhs)
+    {
+        return *this + FixedPointNum(rhs);
+    }
 
 
     template<unsigned int other_decimals>
@@ -129,9 +131,13 @@ public:
         }
 #endif
 
-        return FixedPointNum<Store, binary_decimals>(store - value.store);
+        return from_bits(store - value.store);
     }
 
+    constexpr FixedPointNum<Store, binary_decimals> operator-(const Store rhs)
+    {
+        return *this - FixedPointNum(rhs);
+    }
 
     template<unsigned int other_decimals>
     constexpr FixedPointNum<Store, binary_decimals> operator*(const FixedPointNum<Store, other_decimals> &rhs)
@@ -146,8 +152,12 @@ public:
         auto large_value = store * rhs.store;
 
         // We may lose precision with this cast, but we lose precision so often wo consider it to be ok
-        return FixedPointNum<Store, binary_decimals>(large_value >>
-                                                     ((binary_decimals * other_decimals) - binary_decimals));
+        return from_bits(large_value >> ((binary_decimals * other_decimals) - binary_decimals));
+    }
+
+    constexpr FixedPointNum<Store, binary_decimals> operator*(const Store rhs)
+    {
+        return *this * FixedPointNum(rhs);
     }
 
     constexpr FixedPointNum<Store, binary_decimals> frac() noexcept
@@ -166,7 +176,7 @@ public:
     }
 
 
-    constexpr Store ceil()
+    [[nodiscard]] constexpr Store ceil() const
     {
         if (this->frac() == 0) {
             return this->store >> binary_decimals;
@@ -176,13 +186,13 @@ public:
     }
 
 
-    constexpr Store floor() noexcept
+    [[nodiscard]] constexpr Store floor() const noexcept
     {
         return store >> binary_decimals;
     }
 
 
-    constexpr Store round()
+    [[nodiscard]] constexpr Store round() const
     {
         auto mask = game::internal::create_frac_mask<Store>(binary_decimals);
 
@@ -239,8 +249,12 @@ private:
     {
         if (binary_decimals > other_decimals) {
 #ifdef OVERFLOW_CHECKS
-            if (game::internal::would_left_shift_loose_bits(value.store, binary_decimals - other_decimals)) {
-                throw std::domain_error("Converting between fixed point values would overflow");
+            if (value.floor() > ((1ull << binary_decimals) - 1)) {
+                throw std::domain_error("Number to large to fit into fixed point number");
+            }
+
+            if (std::numeric_limits<Store>::is_signed && value.floor() < -(1ull << binary_decimals)) {
+                throw std::domain_error("Number to small to fit into fixed point number");
             }
 #endif
             return FixedPointNum(value.store << (binary_decimals - other_decimals));
@@ -250,7 +264,7 @@ private:
             return FixedPointNum(value.store >> (other_decimals - binary_decimals));
         }
 
-        return FixedPointNum(value.store);
+        return value;
     }
 };
 

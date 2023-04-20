@@ -6,7 +6,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt5 REQUIRED COMPONENTS Widgets)
@@ -33,7 +33,6 @@ set(PROJECT_SOURCES
         GUI/ScreenLoadGame/screen_load_game.h
         GUI/ScreenLoadGame/screen_load_game.h
         GameState/Pos.cpp
-        GameState/Pos.h
         )
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)

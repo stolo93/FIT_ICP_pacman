@@ -14,8 +14,27 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        GUI/main_window.h GUI/main_window.cpp GUI/ScreenMenu/widget_main_menu.cpp
-        GUI/ScreenMenu/widget_main_menu.h GUI/ScreenMenu/widget_main_menu.cpp GUI/ScreenMenu/screen_menu.cpp GUI/ScreenMenu/screen_menu.h GUI/ScreenNewGame/screen_new_game.cpp GUI/ScreenNewGame/widget_text_input_dialog.cpp GUI/ScreenNewGame/widget_map_file_dialog.h GUI/ScreenNewGame/widget_map_file_dialog.cpp GUI/ScreenLoadGame/widget_file_input_dialog.h GUI/ScreenLoadGame/widget_file_input_dialog.cpp GUI/ScreenLoadGame/screen_load_game.cpp GUI/ScreenLoadGame/screen_load_game.h GUI/ScreenLoadGame/screen_load_game.h GUI/ScreenLoadGame/screen_load_game.h GUI/ScreenLoadGame/screen_load_game.h)
+        GUI/main_window.h
+        GUI/main_window.cpp
+        GUI/ScreenMenu/widget_main_menu.cpp
+        GUI/ScreenMenu/widget_main_menu.h
+        GUI/ScreenMenu/widget_main_menu.cpp
+        GUI/ScreenMenu/screen_menu.cpp
+        GUI/ScreenMenu/screen_menu.h
+        GUI/ScreenNewGame/screen_new_game.cpp
+        GUI/ScreenNewGame/widget_text_input_dialog.cpp
+        GUI/ScreenNewGame/widget_map_file_dialog.h
+        GUI/ScreenNewGame/widget_map_file_dialog.cpp
+        GUI/ScreenLoadGame/widget_file_input_dialog.h
+        GUI/ScreenLoadGame/widget_file_input_dialog.cpp
+        GUI/ScreenLoadGame/screen_load_game.cpp
+        GUI/ScreenLoadGame/screen_load_game.h
+        GUI/ScreenLoadGame/screen_load_game.h
+        GUI/ScreenLoadGame/screen_load_game.h
+        GUI/ScreenLoadGame/screen_load_game.h
+        GameState/Pos.cpp
+        GameState/Pos.h
+        )
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(pacman

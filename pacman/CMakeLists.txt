@@ -32,7 +32,7 @@ set(PROJECT_SOURCES
         GUI/ScreenLoadGame/screen_load_game.h
         GUI/ScreenLoadGame/screen_load_game.h
         GUI/ScreenLoadGame/screen_load_game.h
-        GameState/Pos.cpp
+        GameState/Pos.h
         )
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)

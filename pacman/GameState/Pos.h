@@ -57,10 +57,26 @@ private:
     shift_towards_self(FixedPointNum<Store, other_decimals> value);
 };
 
-
 class Pos
 {
+
+public:
+    typedef FixedPointNum<std::int64_t, 3> Number;
+
+    FixedPointNum<std::int64_t, 3> x;
+    FixedPointNum<std::int64_t, 3> y;
+
+    constexpr Pos(game::FixedPointNum<std::int64_t, 3> x, game::FixedPointNum<std::int64_t, 3> y) noexcept;
+
+    constexpr Pos operator+(const Pos &rhs);
+    constexpr Pos operator-(const Pos &rhs);
+    constexpr Pos operator*(const Number &rhs);
+
+    constexpr Pos &operator+=(const Pos &rhs);
+    constexpr Pos &operator-=(const Pos &rhs);
+    constexpr Pos &operator*=(const Number &rhs);
 };
+
 }    // namespace game
 
 #endif    // PACMAN_POS_H

@@ -250,3 +250,35 @@ game::FixedPointNum<Store, binary_decimals>::shift_towards_self(const FixedPoint
 
     return FixedPointNum(value.store);
 }
+
+constexpr game::Pos::Pos(game::FixedPointNum<int64_t, 3> x, game::FixedPointNum<int64_t, 3> y) noexcept : x(x), y(y) {}
+constexpr game::Pos game::Pos::operator+(const game::Pos &rhs)
+{
+    return {x + rhs.x, y + rhs.y};
+}
+constexpr game::Pos game::Pos::operator-(const game::Pos &rhs)
+{
+    return {x - rhs.x, y - rhs.y};
+}
+constexpr game::Pos game::Pos::operator*(const game::FixedPointNum<int64_t, 3> &rhs)
+{
+    return {x * rhs, y * rhs};
+}
+
+constexpr game::Pos &game::Pos::operator+=(const game::Pos &rhs)
+{
+    *this = *this + rhs;
+    return *this;
+}
+
+constexpr game::Pos &game::Pos::operator-=(const game::Pos &rhs)
+{
+    *this = *this - rhs;
+    return *this;
+}
+
+constexpr game::Pos &game::Pos::operator*=(const Number &rhs)
+{
+    *this = *this * rhs;
+    return *this;
+}

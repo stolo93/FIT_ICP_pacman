@@ -15,8 +15,7 @@
 #include <iostream>
 #include <string>
 
-ScreenNewGame::ScreenNewGame(QWidget *parent) : QWidget(parent)
-{
+ScreenNewGame::ScreenNewGame(QWidget *parent) : QWidget(parent) {
     auto layout = new QGridLayout(this);
     layout->setColumnStretch(0, 1);
     layout->setColumnStretch(1, 2);
@@ -38,24 +37,18 @@ ScreenNewGame::ScreenNewGame(QWidget *parent) : QWidget(parent)
     layout->addWidget(back_button, 0, 0);
 }
 
-void ScreenNewGame::on_go_back_button()
-{
+void ScreenNewGame::on_go_back_button() {
     emit ScreenNewGame::go_to_home();
 }
 
-void ScreenNewGame::on_text_entered(const QString &text)
-{
+void ScreenNewGame::on_text_entered(const QString &text) {
     user_name = text.toStdString();
 }
 
-void ScreenNewGame::on_file_name_entered(std::string &file_name)
-{
+void ScreenNewGame::on_file_name_entered(std::string &file_name) {
     map_file_name = file_name;
 }
 
-void ScreenNewGame::on_start_game_clicked()
-{
-    // TODO connect to the controller
-    std::cout << "Start game!" << '\n';
+void ScreenNewGame::on_start_game_clicked() {
     emit this->start_game(user_name, map_file_name);
 }

@@ -14,8 +14,7 @@
 #include <QWidget>
 #include <iostream>
 
-ScreenLoadGame::ScreenLoadGame(QWidget *parent) : QWidget(parent)
-{
+ScreenLoadGame::ScreenLoadGame(QWidget *parent) : QWidget(parent) {
     auto layout = new QGridLayout(this);
     layout->setColumnStretch(0, 1);
     layout->setColumnStretch(1, 2);
@@ -34,19 +33,14 @@ ScreenLoadGame::ScreenLoadGame(QWidget *parent) : QWidget(parent)
     layout->addWidget(start_game_button, 2, 2, Qt::AlignBottom);
 }
 
-void ScreenLoadGame::on_go_back_button()
-{
+void ScreenLoadGame::on_go_back_button() {
     emit ScreenLoadGame::go_to_home();
 }
 
-void ScreenLoadGame::on_file_entered(std::string &file_name)
-{
+void ScreenLoadGame::on_file_entered(std::string &file_name) {
     map_file_name = file_name;
 }
 
-void ScreenLoadGame::on_start_game_button_clicked()
-{
-    // TODO connect controller
-    std::cout << "Start game" << '\n';
-    emit this->start_game(map_file_name);
+void ScreenLoadGame::on_start_game_button_clicked() {
+    emit this->replay_game(map_file_name);
 }

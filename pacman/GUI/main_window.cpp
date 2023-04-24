@@ -17,17 +17,19 @@
 #include <QSizeGrip>
 #include <QStackedWidget>
 
-PacmanMainWindow::PacmanMainWindow(QMainWindow *parent) : QMainWindow(parent), screens(new QStackedWidget {this})
-{
-    screen_menu = new ScreenMenu {this};
-    screen_new_game = new ScreenNewGame {this};
-    screen_load_game = new ScreenLoadGame {this};
+PacmanMainWindow::PacmanMainWindow(QMainWindow *parent) : QMainWindow(parent), screens(new QStackedWidget{this}) {
+    screen_menu = new ScreenMenu{this};
+    screen_new_game = new ScreenNewGame{this};
+    screen_load_game = new ScreenLoadGame{this};
+    screen_game = new ScreenGame{this};
 
     connect(screen_menu, &ScreenMenu::go_to_new_game_screen, this, &PacmanMainWindow::on_goto_new_game_screen);
     connect(screen_menu, &ScreenMenu::go_to_load_game_screen, this, &PacmanMainWindow::on_goto_load_game_screen);
 
     connect(screen_new_game, &ScreenNewGame::go_to_home, this, &PacmanMainWindow::on_goto_home_screen);
     connect(screen_load_game, &ScreenLoadGame::go_to_home, this, &PacmanMainWindow::on_goto_home_screen);
+    connect(screen_new_game, &ScreenNewGame::start_game, this, &PacmanMainWindow::on_start_game);
+    connect(screen_load_game, &ScreenLoadGame::replay_game, this, &PacmanMainWindow::on_replay_game);
 
     // No better way of doing this apparently
     // Don't change the order, it is bound to indices in enum ScreenNumber
@@ -35,26 +37,36 @@ PacmanMainWindow::PacmanMainWindow(QMainWindow *parent) : QMainWindow(parent), s
     screens->addWidget(screen_menu);
     screens->addWidget(screen_new_game);
     screens->addWidget(screen_load_game);
+    screens->addWidget(screen_game);
 
     // Set starting screen
     screens->setCurrentIndex(static_cast<int>(ScreenNumber::MainMenu));
     this->setCentralWidget(screens);
 }
 
-void PacmanMainWindow::on_goto_home_screen()
-{
+void PacmanMainWindow::on_goto_home_screen() {
     screens->setCurrentIndex(static_cast<int>(ScreenNumber::MainMenu));
     setCentralWidget(screens);
 }
 
-void PacmanMainWindow::on_goto_new_game_screen()
-{
+void PacmanMainWindow::on_goto_new_game_screen() {
     screens->setCurrentIndex(static_cast<int>(ScreenNumber::NewGame));
     setCentralWidget(screens);
 }
 
-void PacmanMainWindow::on_goto_load_game_screen()
-{
+void PacmanMainWindow::on_goto_load_game_screen() {
     screens->setCurrentIndex(static_cast<int>(ScreenNumber::LoadGame));
     setCentralWidget(screens);
+}
+
+void PacmanMainWindow::on_start_game(std::string &user_name, std::string &file_name_map) {
+    screens->setCurrentIndex(static_cast<int>(ScreenNumber::GameScreen));
+    setCentralWidget(screens);
+    emit this->start_game(user_name, file_name_map);
+}
+
+void PacmanMainWindow::on_replay_game(std::string &file_name_map) {
+    screens->setCurrentIndex(static_cast<int>(ScreenNumber::GameScreen));
+    setCentralWidget(screens);
+    emit this->start_replay(file_name_map);
 }

@@ -25,6 +25,8 @@ set(PROJECT_SOURCES
         GameState/Pos.h
         GameState/GameState.cpp GameState/GameState.h GameState/Map.cpp GameState/Map.h GameState/Ghost.cpp GameState/Ghost.h)
 
+include_directories(include)
+
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(pacman
             MANUAL_FINALIZATION

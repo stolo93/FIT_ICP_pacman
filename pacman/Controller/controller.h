@@ -9,13 +9,22 @@
 #define PACMAN_CONTROLLER_H
 
 #include "../GameState/GameState.h"
+#include "../include/boost/lockfree/queue.hpp"
 
 #include <QObject>
 #include <QTimer>
-#include <QEvent>
+#include <QKeyEvent>
 #include <fstream>
+#include <memory>
 
 namespace ctl {
+
+    struct KeyEvent {
+        bool pressed;
+        Qt::Key key;
+    };
+    using UserKeyEventQueue = boost::lockfree::queue<KeyEvent>;
+
     enum class ControllerState {
         StateReplay,
         StateGameplay,
@@ -28,13 +37,15 @@ namespace ctl {
     public:
         explicit Controller(QObject *parent = nullptr);
 
+        ~Controller() noexcept;
+
     signals:
 
         /**
          * Signal containing game state to be rendered
          * @param game_state
          */
-        void update_view(game::GameState &game_state);
+        void update_view(const game::GameState &game_state);
 
     private slots:
 
@@ -43,13 +54,13 @@ namespace ctl {
          * @param user_name
          * @param map_file_name path to the file containing initial map
          */
-        void on_start_game(std::string user_name, std::string map_file_name);
+        void on_start_game(const std::string &user_name, const std::string &map_file_name);
 
         /**
          * Start replay of the game logged in @p log_file_name
          * @param log_file_name log file
          */
-        void on_start_replay(std::string log_file_name);
+        void on_start_replay(const std::string &log_file_name);
 
         /**
          * Set controller state to gameplay
@@ -65,7 +76,7 @@ namespace ctl {
          * Handle an event received by graphics view
          * @param event
          */
-        void on_user_event(QEvent *event);
+        void on_user_event(QKeyEvent *event);
 
         /**
          * Wake up on timer timeout
@@ -75,9 +86,10 @@ namespace ctl {
     private:
         ControllerState state{ControllerState::StateNotSetup};
         QTimer *timer;
-        std::vector<game::GameState> game_states{};
+        std::string user_name;
+        std::vector<game::GameState *> game_states{};
         int current_game_state_idx{};
-        // TODO add input QEvent queue
+        UserKeyEventQueue key_press_queue;
         std::fstream log_file{};
 
         /**
@@ -85,6 +97,19 @@ namespace ctl {
          * Insert newly created game state to the vector of game states and change the game_state_index accordingly
          */
         void update_game_state();
+
+        /**
+         * Handle user events received since last call and change the current state index accordingly
+         */
+        void update_replay_state();
+
+        /**
+         * Copy map from @p map_file_name
+         * @param user_name
+         * @param map_file_name
+         * @return
+         */
+        bool create_log_file(const std::string &user_name, const std::string &map_file_name);
     };
 }
 

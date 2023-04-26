@@ -10,6 +10,7 @@
 
 #include "../GameState/GameState.h"
 #include "../include/boost/lockfree/queue.hpp"
+#include "../GUI/main_window.h"
 
 #include <QObject>
 #include <QTimer>
@@ -23,6 +24,7 @@ namespace ctl {
         bool pressed;
         Qt::Key key;
     };
+    const int QueueCapacity = 1000;
     using UserKeyEventQueue = boost::lockfree::queue<KeyEvent>;
 
     enum class ControllerState {
@@ -39,6 +41,8 @@ namespace ctl {
 
         ~Controller() noexcept;
 
+        void connect_main_window(const view::PacmanMainWindow *main_window) const;
+
     signals:
 
         /**
@@ -47,7 +51,14 @@ namespace ctl {
          */
         void update_view(const game::GameState &game_state);
 
-    private slots:
+        /**
+         * Send initial game state
+         * This is separate from the update, because the window needs to load map only this time
+         * @param game_state
+         */
+        void init_game_screen(const game::GameState &game_state);
+
+    public slots:
 
         /**
          * Start a new game
@@ -78,6 +89,8 @@ namespace ctl {
          */
         void on_user_event(QKeyEvent *event);
 
+    private slots:
+
         /**
          * Wake up on timer timeout
          */
@@ -89,7 +102,7 @@ namespace ctl {
         std::string user_name;
         std::vector<game::GameState *> game_states{};
         int current_game_state_idx{};
-        UserKeyEventQueue key_press_queue;
+        std::unique_ptr<UserKeyEventQueue> key_press_queue;
         std::fstream log_file{};
 
         /**

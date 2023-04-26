@@ -1,11 +1,32 @@
 #ifndef PACMAN_MAP_H
 #define PACMAN_MAP_H
 
+#include <QSharedData>
+#include <QVector>
+#include <cstddef>
+#include <istream>
+#include <optional>
+
 namespace game
 {
 
-class Map
+enum class MapElement {
+    Wall,
+    EmptySpace,
+};
+
+class Map : public QSharedData
 {
+    std::size_t width;
+    std::size_t height;
+    QVector<QVector<MapElement>> map;
+
+public:
+    [[nodiscard]] std::size_t get_width() const;
+    [[nodiscard]] std::size_t get_height() const;
+    [[nodiscard]] const QVector<QVector<MapElement>> &get_map() const;
+
+    Map(std::size_t width, std::size_t height, QVector<QVector<MapElement>> map);
 };
 
 }    // namespace game

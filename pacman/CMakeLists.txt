@@ -36,7 +36,9 @@ set(PROJECT_SOURCES
         GameState/GameState.cpp GameState/GameState.h
         GameState/Map.cpp GameState/Map.h
         GameState/Ghost.cpp GameState/Ghost.h
-        GUI/ScreenGame/screen_game.cpp)
+        GUI/ScreenGame/screen_game.cpp
+        GameState/parse.cpp GameState/parse.h
+        GameState/Player.cpp GameState/Player.h)
 
 include_directories(include)
 

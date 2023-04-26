@@ -24,12 +24,14 @@ namespace ctl {
         bool pressed;
         Qt::Key key;
     };
-    const int QueueCapacity = 1000;
+
+    const int queue_capacity = 1000;
     using UserKeyEventQueue = boost::lockfree::queue<KeyEvent>;
 
     enum class ControllerState {
         StateReplay,
         StateGameplay,
+        StatePaused,
         StateNotSetup
     };
 
@@ -49,14 +51,14 @@ namespace ctl {
          * Signal containing game state to be rendered
          * @param game_state
          */
-        void update_view(const game::GameState &game_state);
+        void update_view(const std::shared_ptr<game::GameState> game_state);
 
         /**
          * Send initial game state
          * This is separate from the update, because the window needs to load map only this time
          * @param game_state
          */
-        void init_game_screen(const game::GameState &game_state);
+        void init_game_screen(const std::shared_ptr<game::GameState> game_state);
 
     public slots:
 
@@ -84,6 +86,11 @@ namespace ctl {
         void on_set_state_replay();
 
         /**
+         * Set controller state to paused game
+         */
+        void on_set_state_paused();
+
+        /**
          * Handle an event received by graphics view
          * @param event
          */
@@ -100,7 +107,8 @@ namespace ctl {
         ControllerState state{ControllerState::StateNotSetup};
         QTimer *timer;
         std::string user_name;
-        std::vector<game::GameState *> game_states{};
+        std::atomic<std::shared_ptr<game::GameState>> current_game_state{};
+        std::vector<std::shared_ptr<game::GameState>> game_states{};
         int current_game_state_idx{};
         std::unique_ptr<UserKeyEventQueue> key_press_queue;
         std::fstream log_file{};

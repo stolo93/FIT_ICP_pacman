@@ -15,16 +15,14 @@
 
 namespace ctl {
     Controller::Controller(QObject *parent) : QObject(parent),
-                                              key_press_queue(std::make_unique<UserKeyEventQueue>(ctl::QueueCapacity)) {
+                                              key_press_queue(
+                                                      std::make_unique<UserKeyEventQueue>(ctl::queue_capacity)) {
         timer = new QTimer(this);
         connect(timer, &QTimer::timeout, this, &Controller::on_timer_timeout);
-        timer->start(11); // 11 to achieve approximately 88 updates per second as in original PacMan game
+        timer->start(11); // 11 ms to achieve approximately 88 updates per second as in original PacMan game
     }
 
     Controller::~Controller() {
-        for (auto game_state: this->game_states) {
-            delete game_state;
-        }
         game_states.clear();
 
         if (log_file.is_open()) {
@@ -42,11 +40,16 @@ namespace ctl {
 
         // Connect controller signals to main window slots
         connect(this, &Controller::update_view, main_window, &view::PacmanMainWindow::on_update_view);
+        connect(this, &Controller::init_game_screen, main_window, &view::PacmanMainWindow::on_init_game_screen);
     }
 
     void Controller::on_timer_timeout() {
         switch (this->state) {
             case ControllerState::StateNotSetup: {
+                return;
+            }
+
+            case ControllerState::StatePaused: {
                 return;
             }
 
@@ -59,7 +62,7 @@ namespace ctl {
             }
         }
         // TODO emit the signal after game states are really being added to the queue
-        // emit update_view(*game_states[current_game_state_idx]);
+        // emit update_view(current_game_state.load());
     }
 
     void Controller::on_start_game(const std::string &user_name, const std::string &map_file_name) {
@@ -69,7 +72,7 @@ namespace ctl {
 
         // TODO load map, create initial game, insert it to game state vector and send it to the main window
         this->state = ControllerState::StateGameplay;
-        // emit this->init_game_screen()
+        // emit this->init_game_screen(current_game_state.load())
         std::cout << "init game \n";
     }
 
@@ -83,7 +86,7 @@ namespace ctl {
 
         this->state = ControllerState::StateReplay;
         // TODO send initial game state to main window
-        // emit this->init_game_screen()
+        // emit this->init_game_screen(current_game_state.load())
         std::cout << "init replay\n";
     }
 
@@ -93,6 +96,10 @@ namespace ctl {
 
     void Controller::on_set_state_replay() {
         this->state = ControllerState::StateReplay;
+    }
+
+    void Controller::on_set_state_paused() {
+        this->state = ControllerState::StatePaused;
     }
 
     void Controller::on_user_event(QKeyEvent *event) {
@@ -109,6 +116,7 @@ namespace ctl {
         // a new game state which will be pushed to the game state vector
 
         // Increment current game state index
+        // Store current game state
     }
 
     void Controller::update_replay_state() {

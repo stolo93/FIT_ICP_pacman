@@ -70,15 +70,15 @@ namespace view {
         emit this->start_replay(file_name_map);
     }
 
-    void PacmanMainWindow::on_init_game_screen(const game::GameState &game_state) {
+    void PacmanMainWindow::on_init_game_screen(const std::shared_ptr<game::GameState> game_state) {
         screens->setCurrentIndex(static_cast<int>(ScreenNumber::GameScreen));
         setCentralWidget(screens);
 
         // TODO set initial game state
         // for the game screen
     }
-    
-    void PacmanMainWindow::on_update_view(const game::GameState &game_state) {
+
+    void PacmanMainWindow::on_update_view(const std::shared_ptr<game::GameState> game_state) {
         // TODO forward new game state to the game screen
     }
 

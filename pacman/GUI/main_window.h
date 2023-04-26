@@ -44,9 +44,9 @@ namespace view {
 
     public slots:
 
-        void on_update_view(const game::GameState &game_state);
+        void on_update_view(const std::shared_ptr<game::GameState> game_state);
 
-        void on_init_game_screen(const game::GameState &game_state);
+        void on_init_game_screen(const std::shared_ptr<game::GameState> game_state);
 
     private slots:
 

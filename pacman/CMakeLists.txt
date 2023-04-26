@@ -14,31 +14,22 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        GUI/main_window.h
-        GUI/main_window.cpp
-        GUI/ScreenMenu/widget_main_menu.cpp
-        GUI/ScreenMenu/widget_main_menu.h
-        GUI/ScreenMenu/widget_main_menu.cpp
-        GUI/ScreenMenu/screen_menu.cpp
-        GUI/ScreenMenu/screen_menu.h
+        GUI/main_window.cpp GUI/main_window.h
+        GUI/ScreenMenu/widget_main_menu.cpp GUI/ScreenMenu/widget_main_menu.h
+        GUI/ScreenMenu/screen_menu.cpp GUI/ScreenMenu/screen_menu.h
         GUI/ScreenNewGame/screen_new_game.cpp
         GUI/ScreenNewGame/widget_text_input_dialog.cpp
-        GUI/ScreenNewGame/widget_map_file_dialog.h
-        GUI/ScreenNewGame/widget_map_file_dialog.cpp
-        GUI/ScreenLoadGame/widget_file_input_dialog.h
-        GUI/ScreenLoadGame/widget_file_input_dialog.cpp
-        GUI/ScreenLoadGame/screen_load_game.cpp
-        GUI/ScreenLoadGame/screen_load_game.h
-        GUI/ScreenLoadGame/screen_load_game.h
-        GUI/ScreenLoadGame/screen_load_game.h
-        GUI/ScreenLoadGame/screen_load_game.h
+        GUI/ScreenNewGame/widget_map_file_dialog.h GUI/ScreenNewGame/widget_map_file_dialog.cpp
+        GUI/ScreenLoadGame/widget_file_input_dialog.h GUI/ScreenLoadGame/widget_file_input_dialog.cpp
+        GUI/ScreenLoadGame/screen_load_game.cpp GUI/ScreenLoadGame/screen_load_game.h
         GameState/Pos.h
         GameState/GameState.cpp GameState/GameState.h
         GameState/Map.cpp GameState/Map.h
         GameState/Ghost.cpp GameState/Ghost.h
         GUI/ScreenGame/screen_game.cpp
         GameState/parse.cpp GameState/parse.h
-        GameState/Player.cpp GameState/Player.h)
+        GameState/Player.cpp GameState/Player.h
+		Controller/controller.cpp Controller/controller.h)
 
 include_directories(include)
 

@@ -6,7 +6,7 @@
  */
 
 #include "controller.h"
-#include "../include/boost/lockfree/queue.hpp"
+#include "../GUI/main_window.h"
 
 #include <QObject>
 #include <QTimer>
@@ -14,7 +14,8 @@
 #include <fstream>
 
 namespace ctl {
-    Controller::Controller(QObject *parent) : QObject(parent), key_press_queue(UserKeyEventQueue()) {
+    Controller::Controller(QObject *parent) : QObject(parent),
+                                              key_press_queue(std::make_unique<UserKeyEventQueue>(ctl::QueueCapacity)) {
         timer = new QTimer(this);
         connect(timer, &QTimer::timeout, this, &Controller::on_timer_timeout);
         timer->start(11); // 11 to achieve approximately 88 updates per second as in original PacMan game
@@ -31,6 +32,18 @@ namespace ctl {
         }
     }
 
+    void Controller::connect_main_window(const view::PacmanMainWindow *main_window) const {
+        // Connect main window signals to controller slots
+        connect(main_window, &view::PacmanMainWindow::start_game, this, &ctl::Controller::on_start_game);
+        connect(main_window, &view::PacmanMainWindow::start_replay, this, &ctl::Controller::on_start_replay);
+        connect(main_window, &view::PacmanMainWindow::user_event, this, &ctl::Controller::on_user_event);
+        connect(main_window, &view::PacmanMainWindow::set_state_game, this, &ctl::Controller::on_set_state_game);
+        connect(main_window, &view::PacmanMainWindow::set_state_replay, this, &ctl::Controller::on_set_state_replay);
+
+        // Connect controller signals to main window slots
+        connect(this, &Controller::update_view, main_window, &view::PacmanMainWindow::on_update_view);
+    }
+
     void Controller::on_timer_timeout() {
         switch (this->state) {
             case ControllerState::StateNotSetup: {
@@ -45,8 +58,8 @@ namespace ctl {
                 update_replay_state();
             }
         }
-
-        emit update_view(*game_states[current_game_state_idx]);
+        // TODO emit the signal after game states are really being added to the queue
+        // emit update_view(*game_states[current_game_state_idx]);
     }
 
     void Controller::on_start_game(const std::string &user_name, const std::string &map_file_name) {
@@ -54,9 +67,10 @@ namespace ctl {
             return;
         }
 
-        // TODO insert initial game state to the game states vector
-
+        // TODO load map, create initial game, insert it to game state vector and send it to the main window
         this->state = ControllerState::StateGameplay;
+        // emit this->init_game_screen()
+        std::cout << "init game \n";
     }
 
     void Controller::on_start_replay(const std::string &log_file_name) {
@@ -65,7 +79,12 @@ namespace ctl {
             return;
         }
 
+        // TODO load map, load game states to the state vector and send initial state to the main window
+
         this->state = ControllerState::StateReplay;
+        // TODO send initial game state to main window
+        // emit this->init_game_screen()
+        std::cout << "init replay\n";
     }
 
     void Controller::on_set_state_game() {
@@ -78,10 +97,10 @@ namespace ctl {
 
     void Controller::on_user_event(QKeyEvent *event) {
         if (event->type() == QKeyEvent::KeyPress) {
-            this->key_press_queue.push(KeyEvent{true, static_cast<Qt::Key>(event->key())});
+            this->key_press_queue->push(KeyEvent{true, static_cast<Qt::Key>(event->key())});
 
         } else if (event->type() == QKeyEvent::KeyRelease) {
-            this->key_press_queue.push(KeyEvent{false, static_cast<Qt::Key>(event->key())});
+            this->key_press_queue->push(KeyEvent{false, static_cast<Qt::Key>(event->key())});
         }
     }
 

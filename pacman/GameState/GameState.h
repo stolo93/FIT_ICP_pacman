@@ -3,6 +3,7 @@
 
 #include "Ghost.h"
 #include "Map.h"
+#include "Player.h"
 #include "Pos.h"
 
 #include <QExplicitlySharedDataPointer>
@@ -15,13 +16,15 @@ struct GameState {
 public:
     const uint64_t state_number;
     const QExplicitlySharedDataPointer<Map> map;
-    const QVector<Pos> ghosts;
-    const Pos player_pos;
+    const QVector<Ghost> ghosts;
+    const Player player;
     const Pos exit;
     const QVector<Pos> keys;
 
 
     GameState update();
+    GameState(QExplicitlySharedDataPointer<Map> map, uint64_t state_number, QVector<Ghost> ghosts, Player player,
+              Pos exit, QVector<Pos> keys);
 };
 
 

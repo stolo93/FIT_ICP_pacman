@@ -107,7 +107,7 @@ namespace ctl {
         ControllerState state{ControllerState::StateNotSetup};
         QTimer *timer;
         std::string user_name;
-        std::atomic<std::shared_ptr<game::GameState>> current_game_state{};
+        std::shared_ptr<game::GameState> current_game_state{};
         std::vector<std::shared_ptr<game::GameState>> game_states{};
         int current_game_state_idx{};
         std::unique_ptr<UserKeyEventQueue> key_press_queue;

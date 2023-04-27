@@ -29,7 +29,14 @@ set(PROJECT_SOURCES
         GUI/ScreenGame/screen_game.cpp
         GameState/parse.cpp GameState/parse.h
         GameState/Player.cpp GameState/Player.h
-        Controller/controller.cpp Controller/controller.h GUI/GraphicItems/pacman_graphics_item.cpp GUI/GraphicItems/item_pacman.h GUI/GraphicItems/item_pacman.cpp GUI/GraphicItems/item_ghost.h GUI/GraphicItems/item_ghost.cpp GUI/GraphicItems/item_wall.h GUI/GraphicItems/item_wall.cpp GUI/GraphicItems/item_target.h GUI/GraphicItems/item_target.cpp GUI/GraphicItems/item_key.h GUI/GraphicItems/item_key.cpp)
+        Controller/controller.cpp Controller/controller.h
+        GUI/ScreenGame/game_view.h GUI/ScreenGame/game_view.cpp
+		GUI/GraphicItems/pacman_graphics_item.h GUI/GraphicItems/pacman_graphics_item.cpp
+		GUI/GraphicItems/item_pacman.h GUI/GraphicItems/item_pacman.cpp
+		GUI/GraphicItems/item_ghost.h GUI/GraphicItems/item_ghost.cpp
+		GUI/GraphicItems/item_wall.h GUI/GraphicItems/item_wall.cpp
+		GUI/GraphicItems/item_target.h GUI/GraphicItems/item_target.cpp
+		GUI/GraphicItems/item_key.h GUI/GraphicItems/item_key.cpp)
 
 include_directories(include)
 add_compile_definitions(OVERFLOW_CHECKS)

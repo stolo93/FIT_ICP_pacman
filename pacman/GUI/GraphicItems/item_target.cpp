@@ -5,7 +5,7 @@
  * Project - ICP - project PacMan
  */
 
-#include "item_target.h"
+#include "pacman_graphics_item.h"
 
 namespace view
 {

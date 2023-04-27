@@ -13,6 +13,7 @@
 #include <QPixmap>
 #include <memory>
 
+// TODO change picture paths
 namespace view
 {
 
@@ -28,6 +29,42 @@ protected:
     uint32_t width = 1;
     uint32_t height = 1;
 };
+
+
+class GraphicsItemPacman : public PacmanGraphicsItem
+{
+public:
+    explicit GraphicsItemPacman(const QString &picture_path = "/home/samuel/fit/4_semester/icp/FIT_ICP_pacman/pacman/GUI/GraphicItems/Pictures/pacman.png");
+};
+
+
+class GraphicsItemGhost : public PacmanGraphicsItem
+{
+public:
+    explicit GraphicsItemGhost(const QString &picture_path = "/home/samuel/fit/4_semester/icp/FIT_ICP_pacman/pacman/GUI/GraphicItems/Pictures/ghost.png");
+};
+
+
+class GraphicsItemWall : public PacmanGraphicsItem
+{
+public:
+    explicit GraphicsItemWall(const QString &picture_path = "/home/samuel/fit/4_semester/icp/FIT_ICP_pacman/pacman/GUI/GraphicItems/Pictures/wall.png");
+};
+
+
+class GraphicsItemTarget : public PacmanGraphicsItem
+{
+public:
+    explicit GraphicsItemTarget(const QString &picture_path = "/home/samuel/fit/4_semester/icp/FIT_ICP_pacman/pacman/GUI/GraphicItems/Pictures/target.png");
+};
+
+
+class GraphicsItemKey : public PacmanGraphicsItem
+{
+public:
+    explicit GraphicsItemKey(const QString &picture_path = "/home/samuel/fit/4_semester/icp/FIT_ICP_pacman/pacman/GUI/GraphicItems/Pictures/key.png");
+};
+
 
 }    // namespace view
 

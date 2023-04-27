@@ -42,6 +42,10 @@ namespace view {
 
         void set_state_replay();
 
+        void update_scene(std::shared_ptr<game::GameState> game_state);
+
+        void init_scene(std::shared_ptr<game::GameState> game_state);
+
     public slots:
 
         void on_update_view(const std::shared_ptr<game::GameState> game_state);
@@ -59,6 +63,8 @@ namespace view {
         void on_start_game(std::string &user_name, std::string &file_name_map);
 
         void on_replay_game(std::string &file_name_map);
+
+        void on_game_event(QKeyEvent *event);
 
     private:
         QStackedWidget *screens;

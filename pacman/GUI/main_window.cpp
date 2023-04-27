@@ -74,12 +74,15 @@ namespace view {
         screens->setCurrentIndex(static_cast<int>(ScreenNumber::GameScreen));
         setCentralWidget(screens);
 
-        // TODO set initial game state
-        // for the game screen
+        emit this->init_scene(game_state);
     }
 
     void PacmanMainWindow::on_update_view(const std::shared_ptr<game::GameState> game_state) {
-        // TODO forward new game state to the game screen
+        emit this->update_scene(game_state);
+    }
+
+    void PacmanMainWindow::on_game_event(QKeyEvent *event) {
+        emit this->user_event(event);
     }
 
 }

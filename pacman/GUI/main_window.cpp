@@ -27,12 +27,14 @@ namespace view {
         connect(screen_menu, &ScreenMenu::go_to_new_game_screen, this, &PacmanMainWindow::on_goto_new_game_screen);
         connect(screen_menu, &ScreenMenu::go_to_load_game_screen, this, &PacmanMainWindow::on_goto_load_game_screen);
 
-        connect(screen_new_game, &ScreenNewGame::go_to_home, this, &PacmanMainWindow::on_goto_home_screen);
-        connect(screen_load_game, &ScreenLoadGame::go_to_home, this, &PacmanMainWindow::on_goto_home_screen);
+        connect(screen_new_game, &ScreenNewGame::go_to_home, this, &PacmanMainWindow::on_goto_menu_screen);
+        connect(screen_load_game, &ScreenLoadGame::go_to_home, this, &PacmanMainWindow::on_goto_menu_screen);
 
         connect(screen_new_game, &ScreenNewGame::start_game, this, &PacmanMainWindow::on_start_game);
         connect(screen_load_game, &ScreenLoadGame::replay_game, this, &PacmanMainWindow::on_replay_game);
 
+        connect(screen_game, &ScreenGame::user_event, this, &PacmanMainWindow::on_user_event);
+        connect(screen_game, &ScreenGame::set_controller_state, this, &PacmanMainWindow::on_set_controller_state);
 
         // No better way of doing this apparently
         // Don't change the order, it is bound to indices in enum ScreenNumber
@@ -47,7 +49,7 @@ namespace view {
         this->setCentralWidget(screens);
     }
 
-    void PacmanMainWindow::on_goto_home_screen() {
+    void PacmanMainWindow::on_goto_menu_screen() {
         screens->setCurrentIndex(static_cast<int>(ScreenNumber::MainMenu));
         setCentralWidget(screens);
     }
@@ -77,12 +79,17 @@ namespace view {
         emit this->init_scene(game_state);
     }
 
-    void PacmanMainWindow::on_update_view(const std::shared_ptr<game::GameState> game_state) {
+    void PacmanMainWindow::on_update_game_screen(const std::shared_ptr<game::GameState> game_state) {
         emit this->update_scene(game_state);
     }
 
-    void PacmanMainWindow::on_game_event(QKeyEvent *event) {
+    void PacmanMainWindow::on_user_event(QKeyEvent *event) {
         emit this->user_event(event);
     }
 
+    void PacmanMainWindow::on_set_controller_state(ctl::ControllerState state) {
+        emit this->set_controller_state(state);
+    }
+
 }
+

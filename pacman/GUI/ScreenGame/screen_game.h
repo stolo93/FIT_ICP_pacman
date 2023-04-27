@@ -8,55 +8,53 @@
 #ifndef PACMAN_SCREENGAME_H
 #define PACMAN_SCREENGAME_H
 
+#include "../pacman.h"
 #include "game_view.h"
 
-#include <QWidget>
-#include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QWidget>
 #include <memory>
 
-namespace view {
-    class ScreenGame : public QWidget {
+namespace view
+{
+class ScreenGame : public QWidget
+{
     Q_OBJECT
 
-    public:
-        explicit ScreenGame(QWidget *parent);
+public:
+    explicit ScreenGame(QWidget *parent);
 
-    signals:
+signals:
 
-        void user_event(QKeyEvent *event);
+    void user_event(QKeyEvent *event);
 
-        void set_state_play();
+    void set_controller_state(ctl::ControllerState state);
 
-        void set_state_replay();
+    void init_scene(std::shared_ptr<game::GameState> game_state);
 
-        void set_state_pause();
+    void update_scene(std::shared_ptr<game::GameState> game_state);
 
-        void init_scene(std::shared_ptr<game::GameState> game_state);
+public slots:
 
-        void update_scene(std::shared_ptr<game::GameState> game_state);
+    void on_init_scene(std::shared_ptr<game::GameState> game_state);
 
-    public slots:
+    void on_update_scene(std::shared_ptr<game::GameState> game_state);
 
-        void on_init_scene(std::shared_ptr<game::GameState> game_state);
+private slots:
 
-        void on_update_scene(std::shared_ptr<game::GameState> game_state);
+    void on_user_event(QKeyEvent *event);
 
-    private slots:
+    void on_click_play();
 
-        void on_user_event(QKeyEvent *event);
+    void on_click_pause();
 
-        void on_click_play();
+    void on_click_replay();
 
-        void on_click_pause();
-
-        void on_click_replay();
-
-    private:
-        std::unique_ptr<GameView> graphics_view{};
-
-    };
-}
+private:
+    std::unique_ptr<GameView> graphics_view;
+};
+}    // namespace view
 
 
-#endif //PACMAN_SCREENGAME_H
+#endif    // PACMAN_SCREENGAME_H

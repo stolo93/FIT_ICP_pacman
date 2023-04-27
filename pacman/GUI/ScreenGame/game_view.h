@@ -9,41 +9,45 @@
 #define PACMAN_GAMEVIEW_H
 
 #include "../GameState/GameState.h"
+#include "../GameState/Map.h"
 
-#include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QKeyEvent>
 #include <memory>
 
-namespace view {
-    class GameView : public QGraphicsView {
+namespace view
+{
+class GameView : public QGraphicsView
+{
 
     Q_OBJECT
 
-    public:
-        explicit GameView(QGraphicsView *parent = nullptr);
+public:
+    explicit GameView(QGraphicsView *parent = nullptr);
 
-    signals:
+signals:
 
-        void user_event(QKeyEvent *event);
-
-
-    public slots:
-
-        void on_init_scene(std::shared_ptr<game::GameState> game_state);
-
-        void on_update_scene(std::shared_ptr<game::GameState> game_state);
-
-    protected:
-        void keyPressEvent(QKeyEvent *event) override;
-
-        void keyReleaseEvent(QKeyEvent *event) override;
-
-    private:
-        std::unique_ptr<QGraphicsScene> scene;
-        
-    };
-}
+    void user_event(QKeyEvent *event);
 
 
-#endif //PACMAN_GAMEVIEW_H
+public slots:
+
+    void on_init_scene(std::shared_ptr<game::GameState> game_state);
+
+    void on_update_scene(std::shared_ptr<game::GameState> game_state);
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+
+    void keyReleaseEvent(QKeyEvent *event) override;
+
+private:
+    std::unique_ptr<QGraphicsScene> scene;
+
+    void insert_map_objects_to_scene(const game::Map &map);
+};
+}    // namespace view
+
+
+#endif    // PACMAN_GAMEVIEW_H

@@ -14,6 +14,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
+		pacman.h
         GUI/main_window.cpp GUI/main_window.h
         GUI/ScreenMenu/widget_main_menu.cpp GUI/ScreenMenu/widget_main_menu.h
         GUI/ScreenMenu/screen_menu.cpp GUI/ScreenMenu/screen_menu.h

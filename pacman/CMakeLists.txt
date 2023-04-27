@@ -32,6 +32,7 @@ set(PROJECT_SOURCES
         Controller/controller.cpp Controller/controller.h)
 
 include_directories(include)
+add_compile_definitions(OVERFLOW_CHECKS)
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(pacman

@@ -62,7 +62,7 @@ namespace ctl {
             }
         }
         // TODO emit the signal after game states are really being added to the queue
-        // emit update_view(current_game_state.load());
+        // emit update_view(std::atomic_load(&current_game_state));
     }
 
     void Controller::on_start_game(const std::string &user_name, const std::string &map_file_name) {
@@ -72,7 +72,7 @@ namespace ctl {
 
         // TODO load map, create initial game, insert it to game state vector and send it to the main window
         this->state = ControllerState::StateGameplay;
-        // emit this->init_game_screen(current_game_state.load())
+        // emit this->init_game_screen(std::atomic_load(&current_game_state))
         std::cout << "init game \n";
     }
 

@@ -4,6 +4,7 @@
 #include <climits>
 #include <compare>
 #include <cstdint>
+#include <limits>
 #include <numeric>
 #include <stdexcept>
 
@@ -15,7 +16,6 @@ namespace game::internal
 /// \param n THe numbers of bits to set to 1
 /// \return A *integral* with the first *n* bits set
 template<typename integral>
-    requires std::integral<integral>
 constexpr integral create_frac_mask(unsigned int n)
 {
     if (n == 0) { return 0; }
@@ -25,7 +25,6 @@ constexpr integral create_frac_mask(unsigned int n)
 
 #ifdef OVERFLOW_CHECKS
 template<typename T>
-    requires std::integral<T>
 constexpr bool would_addition_overflow(T lhs, T rhs)
 {
     return (rhs > 0 && lhs > std::numeric_limits<T>::max() - rhs) ||
@@ -33,7 +32,6 @@ constexpr bool would_addition_overflow(T lhs, T rhs)
 }
 
 template<typename T>
-    requires std::integral<T>
 constexpr bool would_subtraction_overflow(T lhs, T rhs)
 {
     return (rhs <= 0 && lhs > std::numeric_limits<T>::max() + rhs) ||
@@ -41,7 +39,6 @@ constexpr bool would_subtraction_overflow(T lhs, T rhs)
 }
 
 template<typename T>
-    requires std::integral<T>
 constexpr bool would_multiplication_overflow(T lhs, T rhs)
 {
     if (std::numeric_limits<T>::is_signed) {
@@ -60,7 +57,6 @@ namespace game
 {
 
 template<typename Store, unsigned int binary_decimals>
-    requires std::integral<Store>
 class FixedPointNum final
 {
     static_assert(binary_decimals <= sizeof(Store) * CHAR_BIT, "Not enough space in Store to fit decimal digits");
@@ -204,14 +200,14 @@ public:
     }
 
 
-    constexpr FixedPointNum<Store, binary_decimals> operator/(const Store &rhs)
+    constexpr FixedPointNum<Store, binary_decimals> operator/(const Store &rhs) const
     {
         return FixedPointNum<Store, binary_decimals>(store / rhs);
     }
 
 
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals> &operator+=(const FixedPointNum<Store, other_decimals> &rhs)
+    constexpr FixedPointNum<Store, binary_decimals> &operator+=(const FixedPointNum<Store, other_decimals> &rhs) const
     {
         *this = *this + rhs;
         return *this;
@@ -219,7 +215,7 @@ public:
 
 
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals> &operator-=(const FixedPointNum<Store, other_decimals> &rhs)
+    constexpr FixedPointNum<Store, binary_decimals> &operator-=(const FixedPointNum<Store, other_decimals> &rhs) const
     {
         *this = *this - rhs;
         return *this;
@@ -227,21 +223,48 @@ public:
 
 
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals> &operator*=(const FixedPointNum<Store, other_decimals> &rhs)
+    constexpr FixedPointNum<Store, binary_decimals> &operator*=(const FixedPointNum<Store, other_decimals> &rhs) const
     {
         *this = *this * rhs;
         return *this;
     }
 
 
-    constexpr FixedPointNum<Store, binary_decimals> &operator/=(const Store &rhs)
+    constexpr FixedPointNum<Store, binary_decimals> &operator/=(const Store &rhs) const
     {
         *this = *this / rhs;
         return *this;
     }
 
-    constexpr std::strong_ordering operator<=>(const FixedPointNum<Store, binary_decimals> &other) const = default;
+    constexpr bool operator<(const FixedPointNum<Store, binary_decimals> &other) const
+    {
+        return this->store < other.store;
+    }
 
+    constexpr bool operator>(const FixedPointNum<Store, binary_decimals> &other) const
+    {
+        return this->store > other.store;
+    }
+
+    constexpr bool operator<=(const FixedPointNum<Store, binary_decimals> &other) const
+    {
+        return this->store <= other.store;
+    }
+
+    constexpr bool operator>=(const FixedPointNum<Store, binary_decimals> &other) const
+    {
+        return this->store >= other.store;
+    }
+
+    constexpr bool operator==(const FixedPointNum<Store, binary_decimals> &other) const
+    {
+        return this->store == other.store;
+    }
+
+    constexpr bool operator!=(const FixedPointNum<Store, binary_decimals> &other) const
+    {
+        return this->store != other.store;
+    }
 
 private:
     template<unsigned int other_decimals>

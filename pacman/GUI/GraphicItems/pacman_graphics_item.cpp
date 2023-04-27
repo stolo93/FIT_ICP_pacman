@@ -16,6 +16,7 @@ QRectF PacmanGraphicsItem::boundingRect() const
 
 void PacmanGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    painter->drawPixmap(0, 0, *icon);
+    painter->drawPixmap(this->boundingRect(), *icon, icon->rect());
+
 }
 }    // namespace view

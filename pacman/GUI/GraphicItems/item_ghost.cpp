@@ -5,7 +5,7 @@
  * Project - ICP - project PacMan
  */
 
-#include "item_ghost.h"
+#include "pacman_graphics_item.h"
 namespace view
 {
 GraphicsItemGhost::GraphicsItemGhost(const QString &picture_path)

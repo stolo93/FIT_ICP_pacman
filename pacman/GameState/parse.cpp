@@ -8,7 +8,7 @@ std::optional<std::size_t> parse_number_from_stream(std::istream &input)
 
     char character;
     while (input.get(character)) {
-        if (character == std::iswspace(character)) { break; }
+        if (std::iswspace(character)) { break; }
 
         if (! std::isdigit(character)) { return {}; }
 
@@ -24,9 +24,28 @@ std::optional<std::size_t> parse_number_from_stream(std::istream &input)
     return value;
 }
 
+enum class LineEnd { EndOfFile, NewLine, Character };
+
+//
+LineEnd parse_line_end(std::istream &input)
+{
+    char character;
+    if (! input.get(character)) { return LineEnd::EndOfFile; }
+
+    if (character == '\n') { return LineEnd::NewLine; }
+
+    if (character != '\r') { return LineEnd::Character; }
+
+    if (! input.get(character)) { return LineEnd::EndOfFile; }
+
+    if (character != '\n') { return LineEnd::Character; }
+
+    return LineEnd::NewLine;
+}
+
 namespace game
 {
-std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_from_stream(std::istream &input)
+std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_map_from_stream(std::istream &input)
 {
     auto possibly_height = parse_number_from_stream(input);
     if (! possibly_height) { return {}; }
@@ -39,6 +58,8 @@ std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_fro
     auto width = possibly_width.value();
 
     if (! input) { return {}; }
+    if (input.peek() == EOF) { return {}; }
+    if (input.peek() == '\n') { input.get(); }
 
     std::optional<Player> maybe_player = {};
     QVector<Ghost> ghosts = {};
@@ -95,10 +116,12 @@ std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_fro
             }
         }
 
-        // Every line of the map definition should end with a newline
-        char character;
-        if (! input.get(character)) { return {}; }
-        if (character != '\n') { return {}; }
+        // Every line of the map definition should end with a newline or crcf
+        auto end_line = parse_line_end(input);
+        if (end_line == LineEnd::Character) { return {}; }
+
+        // The last line might end with an EOF
+        if (row != height - 1 && end_line == LineEnd::EndOfFile) { return {}; }
 
         map.push_back(row_contents);
     }

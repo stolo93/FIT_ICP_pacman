@@ -92,6 +92,7 @@ private:
     std::shared_ptr<game::GameState> current_game_state {};
     std::vector<std::shared_ptr<game::GameState>> game_states {};
     int current_game_state_idx {};
+    QExplicitlySharedDataPointer<game::Map> game_map {};
     std::unique_ptr<UserKeyEventQueue> key_event_queue;
     std::fstream log_file {};
 

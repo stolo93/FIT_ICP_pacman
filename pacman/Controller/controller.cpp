@@ -7,10 +7,14 @@
 
 #include "controller.h"
 
+#include "../GameState/GameState.h"
+#include "../GameState/parse.h"
+
 #include <QObject>
 #include <QTimer>
-#include <iostream>
+#include <atomic>
 #include <fstream>
+#include <iostream>
 
 namespace ctl
 {
@@ -55,38 +59,88 @@ void Controller::on_timer_timeout()
         }
 
         case ControllerState::StateGameplay: {
+            // Inserts a new game state into game states vector and sets the current_game_state correctly
             update_game_state();
         }
 
         case ControllerState::StateReplay: {
+            // Sets the current_game_state correctly
             update_replay_state();
         }
     }
-	// TODO emit the signal after game states are really being added to the queue
-	// emit update_view(std::atomic_load(&current_game_state));
+    emit update_game_screen(std::atomic_load(&current_game_state));
 }
 
 void Controller::on_start_game(const std::string &user, const std::string &map_file_name)
 {
+    // Check if a file is already opened
+    if (this->log_file.is_open()) { this->log_file.close(); }
+
+    // Check if the username and the file name are not empty strings
+    if (user.empty() || map_file_name.empty()) {
+        std::cerr << "Error: user_name = \"" << user << "\" map file name = \"" << map_file_name << "\"" << std::endl;
+        return;
+    }
+    // Try to create a log file
     if (! create_log_file(user, map_file_name)) { return; }
 
-    // TODO load map, create initial game, insert it to game state vector and send it to the main window
+    // Try to parse the log file for map and initial state
+    auto map_state_pair = game::parse_map_from_stream(this->log_file);
+    if (! map_state_pair.has_value()) {
+        this->log_file.close();
+        std::cerr << "Error: could not correctly parse the file" << std::endl;
+        return;
+    }
+
+    // Get the map and the initial state
+    this->game_map = map_state_pair->first;
+    auto initial_game_state = std::make_shared<game::GameState>(map_state_pair->second);
+    std::atomic_store(&this->current_game_state, initial_game_state);
+
+    // Insert initial game state to the game state vector
+    this->game_states.push_back(current_game_state);
+    current_game_state_idx = 0;
+
+    // Start game play
     this->state = ControllerState::StateGameplay;
-    // emit this->init_game_screen(std::atomic_load(&current_game_state))
-    std::cout << "init game \n";
+    emit this->init_game_screen(std::atomic_load(&current_game_state));
+    std::cerr << "Info: Initialized new game" << std::endl;
 }
 
 void Controller::on_start_replay(const std::string &log_file_name)
 {
     this->log_file = std::fstream(log_file_name);
-    if (! log_file.is_open()) { return; }
+    if (! log_file.is_open()) {
+        std::cerr << "Error: Could not open the log file" << std::endl;
+        return;
+    }
 
-    // TODO load map, load game states to the state vector and send initial state to the main window
+    // Try to parse the file to get the map and the first state
+    auto map_state_pair = game::parse_map_from_stream(this->log_file);
+    if (! map_state_pair.has_value()) {
+        this->log_file.close();
+        std::cerr << "Error: could not correctly parse the file" << std::endl;
+        return;
+    }
+
+    // Store the map, get first game state and store it as current game_state
+    this->game_map = map_state_pair->first;
+    auto initial_state = std::make_shared<game::GameState>(map_state_pair->second);
+    std::atomic_store(&this->current_game_state, initial_state);
+
+    this->game_states.push_back(this->current_game_state);
+    this->current_game_state_idx = 0;
+
+    // Load all other game states into the state while (true)
+    while (true) {
+        auto current_state = game::parse_state_from_stream(this->log_file, this->game_map);
+        if (! current_state.has_value()) { break; }
+        this->game_states.push_back(std::make_shared<game::GameState>(current_state.value()));
+    }
 
     this->state = ControllerState::StateReplay;
-    // TODO send initial game state to main window
-    // emit this->init_game_screen(current_game_state.load())
-    std::cout << "init replay\n";
+    emit this->init_game_screen(std::atomic_load(&current_game_state));
+    std::cout << "Info: Initialized game replay" << std::endl;
 }
 
 void Controller::on_set_controller_state(ControllerState new_state)
@@ -112,7 +166,6 @@ void Controller::update_game_state()
     // Increment current game state index
     // Store current game state
 }
-
 
 void Controller::update_replay_state()
 {
@@ -147,4 +200,3 @@ bool Controller::create_log_file(const std::string &user, const std::string &map
     return true;
 }
 }    // namespace ctl
-

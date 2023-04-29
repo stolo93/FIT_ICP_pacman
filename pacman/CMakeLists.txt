@@ -14,7 +14,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-		pacman.h
+        pacman.h
         GUI/main_window.cpp GUI/main_window.h
         GUI/ScreenMenu/widget_main_menu.cpp GUI/ScreenMenu/widget_main_menu.h
         GUI/ScreenMenu/screen_menu.cpp GUI/ScreenMenu/screen_menu.h
@@ -32,12 +32,12 @@ set(PROJECT_SOURCES
         GameState/Player.cpp GameState/Player.h
         Controller/controller.cpp Controller/controller.h
         GUI/ScreenGame/game_view.h GUI/ScreenGame/game_view.cpp
-		GUI/GraphicItems/pacman_graphics_item.h GUI/GraphicItems/pacman_graphics_item.cpp
-		GUI/GraphicItems/item_pacman.h GUI/GraphicItems/item_pacman.cpp
-		GUI/GraphicItems/item_ghost.h GUI/GraphicItems/item_ghost.cpp
-		GUI/GraphicItems/item_wall.h GUI/GraphicItems/item_wall.cpp
-		GUI/GraphicItems/item_target.h GUI/GraphicItems/item_target.cpp
-		GUI/GraphicItems/item_key.h GUI/GraphicItems/item_key.cpp)
+        GUI/GraphicItems/pacman_graphics_item.h GUI/GraphicItems/pacman_graphics_item.cpp
+        GUI/GraphicItems/item_pacman.cpp
+        GUI/GraphicItems/item_ghost.cpp
+        GUI/GraphicItems/item_wall.cpp
+        GUI/GraphicItems/item_target.cpp
+        GUI/GraphicItems/item_key.cpp)
 
 include_directories(include)
 add_compile_definitions(OVERFLOW_CHECKS)

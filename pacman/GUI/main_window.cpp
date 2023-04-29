@@ -35,7 +35,9 @@ namespace view {
 
         connect(screen_game, &ScreenGame::user_event, this, &PacmanMainWindow::on_user_event);
         connect(screen_game, &ScreenGame::set_controller_state, this, &PacmanMainWindow::on_set_controller_state);
-
+        connect(this, &PacmanMainWindow::init_scene, screen_game, &ScreenGame::on_init_scene);
+        connect(this, &PacmanMainWindow::update_scene, screen_game, &ScreenGame::on_update_scene);
+        
         // No better way of doing this apparently
         // Don't change the order, it is bound to indices in enum ScreenNumber
         // Defined in main_window.h

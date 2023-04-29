@@ -161,6 +161,7 @@ void Controller::on_user_event(QKeyEvent *event)
 
 void Controller::update_game_state()
 {
+    // TODO
     // Take all unconsumed keyboard events from queue and create
     // a new game state which will be pushed to the game state vector
 
@@ -170,6 +171,7 @@ void Controller::update_game_state()
 
 void Controller::update_replay_state()
 {
+    // TODO
     // Take unconsumed keyboard events which control game replay and adjust current game index accordingly
 }
 

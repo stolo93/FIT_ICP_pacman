@@ -132,11 +132,12 @@ void Controller::on_start_replay(const std::string &log_file_name)
     this->current_game_state_idx = 0;
 
     // Load all other game states into the state while (true)
-    while (true) {
-        auto current_state = game::parse_state_from_stream(this->log_file, this->game_map);
-        if (! current_state.has_value()) { break; }
-        this->game_states.push_back(std::make_shared<game::GameState>(current_state.value()));
-    }
+    // TODO add when game::parse_state_from_stream is fixed
+    //    while (true) {
+    //        auto current_state = game::parse_state_from_stream(this->log_file, this->game_map);
+    //        if (! current_state.has_value()) { break; }
+    //        this->game_states.push_back(std::make_shared<game::GameState>(current_state.value()));
+    //    }
 
     this->state = ControllerState::StateReplay;
     emit this->init_game_screen(std::atomic_load(&current_game_state));
@@ -190,11 +191,16 @@ bool Controller::create_log_file(const std::string &user, const std::string &map
     }
 
     // Copy map to the log file
-    log_file << user << '\n';
     std::string line {};
-    while (std::getline(map_file, line)) { log_file << line; }
+    while (std::getline(map_file, line)) {
+        line += '\n';
+        log_file << line;
+    }
 
     log_file << std::endl;
+
+    // Move the file pointer to the beginning
+    log_file.seekg(0, std::ios::beg);
 
     map_file.close();
     return true;

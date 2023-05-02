@@ -96,6 +96,19 @@ public:
         return new_num;
     };
 
+    [[nodiscard]] constexpr Store to_bits() const
+    {
+        return this->store;
+    }
+
+    template<class Float>
+    constexpr Float to_floating_point() const
+    {
+        auto scaled_value = static_cast<Float>(this->to_bits());
+        auto scale = static_cast<Float>(2 << binary_decimals);
+        return scaled_value / scale;
+    }
+
     template<unsigned int other_decimals>
     constexpr FixedPointNum<Store, binary_decimals> operator+(const FixedPointNum<Store, other_decimals> &rhs)
     {

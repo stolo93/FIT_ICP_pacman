@@ -22,7 +22,7 @@ public:
     const QVector<Pos> keys;
 
 
-    GameState update();
+    GameState update(Pos direction);
     GameState(QExplicitlySharedDataPointer<Map> map, uint64_t state_number, QVector<Ghost> ghosts, Player player,
               Pos exit, QVector<Pos> keys);
 };

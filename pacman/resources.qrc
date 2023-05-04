@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>resources/game_objects/pacman.png</file>
+        <file>resources/game_objects/ghost.png</file>
+        <file>resources/game_objects/wall.png</file>
+        <file>resources/game_objects/key.png</file>
+        <file>resources/game_objects/target.png</file>
+    </qresource>
+</RCC>

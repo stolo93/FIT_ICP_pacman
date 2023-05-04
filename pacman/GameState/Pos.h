@@ -88,6 +88,16 @@ public:
 
         store = value << binary_decimals;
     };
+    
+     static constexpr FixedPointNum<Store, binary_decimals> from_float(double num) {
+     
+        // Multiply by scaling factor to move the decimals that will get saved in the FixedPointNum into the whole part
+        num *= (1 << binary_decimals);
+
+
+        // Restore the saved decimals
+        return FixedPointNum(num) / (1 << binary_decimals);
+     }
 
     static constexpr FixedPointNum<Store, binary_decimals> from_bits(Store bits)
     {
@@ -105,7 +115,7 @@ public:
     constexpr Float to_floating_point() const
     {
         auto scaled_value = static_cast<Float>(this->to_bits());
-        auto scale = static_cast<Float>(2 << binary_decimals);
+        auto scale = static_cast<Float>(1 << binary_decimals);
         return scaled_value / scale;
     }
 
@@ -314,6 +324,10 @@ public:
     FixedPointNum<std::int64_t, 3> y;
 
     constexpr Pos(game::FixedPointNum<int64_t, 3> x, game::FixedPointNum<int64_t, 3> y) noexcept : x(x), y(y) {}
+    constexpr Pos(double x, double y): x(0), y(0) {
+        this->x = FixedPointNum<std::int64_t, 3>::from_float(x);
+        this->y = FixedPointNum<std::int64_t, 3>::from_float(y);
+    }
     constexpr game::Pos operator+(const game::Pos &rhs)
     {
         return {x + rhs.x, y + rhs.y};

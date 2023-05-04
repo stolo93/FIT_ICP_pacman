@@ -178,16 +178,16 @@ void Controller::update_gameplay_state()
 
         switch (key_event.key) {
             case Qt::Key_Left:
-                y_direction = y_direction - STEP;
-                break;
-            case Qt::Key_Right:
-                y_direction = y_direction + STEP;
-                break;
-            case Qt::Key_Up:
                 x_direction = x_direction - STEP;
                 break;
-            case Qt::Key_Down:
+            case Qt::Key_Right:
                 x_direction = x_direction + STEP;
+                break;
+            case Qt::Key_Up:
+                y_direction = y_direction - STEP;
+                break;
+            case Qt::Key_Down:
+                y_direction = y_direction + STEP;
                 break;
             default:
                 break;

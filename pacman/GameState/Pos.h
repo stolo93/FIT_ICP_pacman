@@ -88,16 +88,17 @@ public:
 
         store = value << binary_decimals;
     };
-    
-     static constexpr FixedPointNum<Store, binary_decimals> from_float(double num) {
-     
+
+    static constexpr FixedPointNum<Store, binary_decimals> from_float(double num)
+    {
+
         // Multiply by scaling factor to move the decimals that will get saved in the FixedPointNum into the whole part
         num *= (1 << binary_decimals);
 
 
         // Restore the saved decimals
         return FixedPointNum(num) / (1 << binary_decimals);
-     }
+    }
 
     static constexpr FixedPointNum<Store, binary_decimals> from_bits(Store bits)
     {
@@ -120,7 +121,7 @@ public:
     }
 
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals> operator+(const FixedPointNum<Store, other_decimals> &rhs)
+    constexpr FixedPointNum<Store, binary_decimals> operator+(const FixedPointNum<Store, other_decimals> &rhs) const
     {
         FixedPointNum<Store, binary_decimals> value = shift_towards_self(rhs);
 
@@ -140,7 +141,7 @@ public:
 
 
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals> operator-(const FixedPointNum<Store, other_decimals> &rhs)
+    constexpr FixedPointNum<Store, binary_decimals> operator-(const FixedPointNum<Store, other_decimals> &rhs) const
     {
         FixedPointNum<Store, binary_decimals> value = shift_towards_self(rhs);
 
@@ -153,13 +154,13 @@ public:
         return from_bits(store - value.store);
     }
 
-    constexpr FixedPointNum<Store, binary_decimals> operator-(const Store rhs)
+    constexpr FixedPointNum<Store, binary_decimals> operator-(const Store rhs) const
     {
         return *this - FixedPointNum(rhs);
     }
 
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals> operator*(const FixedPointNum<Store, other_decimals> &rhs)
+    constexpr FixedPointNum<Store, binary_decimals> operator*(const FixedPointNum<Store, other_decimals> &rhs) const
     {
         static_assert(sizeof(Store) * CHAR_BIT > binary_decimals * other_decimals,
                       "Multiplication of values would loose all data");
@@ -174,12 +175,12 @@ public:
         return from_bits(large_value >> ((binary_decimals * other_decimals) - binary_decimals));
     }
 
-    constexpr FixedPointNum<Store, binary_decimals> operator*(const Store rhs)
+    constexpr FixedPointNum<Store, binary_decimals> operator*(const Store rhs) const
     {
         return *this * FixedPointNum(rhs);
     }
 
-    constexpr FixedPointNum<Store, binary_decimals> frac() noexcept
+    constexpr FixedPointNum<Store, binary_decimals> frac() const noexcept
     {
         auto mask = game::internal::create_frac_mask<Store>(binary_decimals);
 
@@ -187,7 +188,7 @@ public:
     }
 
 
-    constexpr FixedPointNum<Store, binary_decimals> integer() noexcept
+    constexpr FixedPointNum<Store, binary_decimals> integer() const noexcept
     {
         auto mask = game::internal::create_frac_mask<Store>(binary_decimals);
 
@@ -220,6 +221,11 @@ public:
         } else {
             return this->floor();
         }
+    }
+
+    [[nodiscard]] constexpr FixedPointNum<Store, binary_decimals> abs() const
+    {
+        return FixedPointNum(std::abs(this->store));
     }
 
 
@@ -291,7 +297,8 @@ public:
 
 private:
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals> shift_towards_self(const FixedPointNum<Store, other_decimals> value)
+    constexpr FixedPointNum<Store, binary_decimals>
+    shift_towards_self(const FixedPointNum<Store, other_decimals> value) const
     {
         if (binary_decimals > other_decimals) {
 #ifdef OVERFLOW_CHECKS
@@ -324,19 +331,31 @@ public:
     FixedPointNum<std::int64_t, 3> y;
 
     constexpr Pos(game::FixedPointNum<int64_t, 3> x, game::FixedPointNum<int64_t, 3> y) noexcept : x(x), y(y) {}
-    constexpr Pos(double x, double y): x(0), y(0) {
-        this->x = FixedPointNum<std::int64_t, 3>::from_float(x);
-        this->y = FixedPointNum<std::int64_t, 3>::from_float(y);
+
+    [[nodiscard]] constexpr Pos floor() const
+    {
+        return {this->x.floor(), this->y.floor()};
     }
-    constexpr game::Pos operator+(const game::Pos &rhs)
+
+    [[nodiscard]] constexpr Pos ceil() const
+    {
+        return {this->x.ceil(), this->y.ceil()};
+    }
+
+    [[nodiscard]] constexpr Pos round() const
+    {
+        return {this->x.round(), this->y.round()};
+    }
+
+    constexpr game::Pos operator+(const game::Pos &rhs) const
     {
         return {x + rhs.x, y + rhs.y};
     }
-    constexpr game::Pos operator-(const game::Pos &rhs)
+    constexpr game::Pos operator-(const game::Pos &rhs) const
     {
         return {x - rhs.x, y - rhs.y};
     }
-    constexpr game::Pos operator*(const game::FixedPointNum<int64_t, 3> &rhs)
+    constexpr game::Pos operator*(const game::FixedPointNum<int64_t, 3> &rhs) const
     {
         return {x * rhs, y * rhs};
     }

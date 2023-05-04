@@ -13,6 +13,8 @@ namespace game
 enum class MapElement {
     Wall,
     EmptySpace,
+    Start,
+    End,
 };
 
 class Map : public QSharedData

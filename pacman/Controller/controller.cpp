@@ -55,12 +55,13 @@ void Controller::on_timer_timeout()
         }
 
         case ControllerState::StatePaused: {
+            update_pause_state();
             return;
         }
 
         case ControllerState::StateGameplay: {
             // Inserts a new game state into game states vector and sets the current_game_state correctly
-            update_game_state();
+            update_gameplay_state();
         }
 
         case ControllerState::StateReplay: {
@@ -159,20 +160,94 @@ void Controller::on_user_event(QKeyEvent *event)
     }
 }
 
-void Controller::update_game_state()
+void Controller::update_gameplay_state()
 {
-    // TODO
-    // Take all unconsumed keyboard events from queue and create
-    // a new game state which will be pushed to the game state vector
+    static const auto STEP {game::FixedPointNum<int64_t, 3>(1) / 8};
+    KeyEvent key_event{};
+    game::FixedPointNum<int64_t, 3> x_direction{0};
+    game::FixedPointNum<int64_t, 3> y_direction{0};
 
-    // Increment current game state index
-    // Store current game state
+    // Process key events
+    while(! this->key_event_queue->empty()){
+        this->key_event_queue->pop(key_event);
+
+        // Ignore key release
+        if (key_event.event_type == ctl::KeyEventType::KeyRelease){
+            continue;
+        }
+
+        switch (key_event.key) {
+            case Qt::Key_Left:
+                y_direction = y_direction - STEP;
+                break;
+            case Qt::Key_Right:
+                y_direction = y_direction + STEP;
+                break;
+            case Qt::Key_Up:
+                x_direction = x_direction - STEP;
+                break;
+            case Qt::Key_Down:
+                x_direction = x_direction + STEP;
+                break;
+            default:
+                break;
+        }
+    }
+
+
+    // Make the move
+    auto move_vector = game::Pos(x_direction, y_direction);
+    auto new_game_state = this->current_game_state->update(move_vector);
+    // TODO check for game over
+    // If so, change controller state and set screen to game over
+
+    this->game_states.push_back(std::make_shared<game::GameState>(new_game_state));
+    ++this->current_game_state_idx;
+
+    set_current_game_state();
 }
 
 void Controller::update_replay_state()
 {
-    // TODO
-    // Take unconsumed keyboard events which control game replay and adjust current game index accordingly
+    KeyEvent key_event{};
+    while(! this->key_event_queue->empty()){
+        this->key_event_queue->pop(key_event);
+        // Ignore key release
+        if (key_event.event_type == KeyEventType::KeyRelease){
+            continue;
+        }
+
+        switch (key_event.key) {
+            case Qt::Key_Right:
+                ++this->current_game_state_idx;
+                break;
+            case Qt::Key_Left:
+                --this->current_game_state_idx;
+                break;
+            default:
+                break;
+        }
+    }
+    set_current_game_state();
+}
+
+void Controller::update_pause_state() {
+    KeyEvent event{};
+    // clear input queue
+    while(! this->key_event_queue->empty()){
+        this->key_event_queue->pop(event);
+    }
+}
+
+void Controller::set_current_game_state() {
+    if (this->current_game_state_idx >= this->game_states.size()) {
+        this->current_game_state_idx = this->game_states.size() - 1;
+    }
+    else if (this->current_game_state_idx < 0){
+        this->current_game_state_idx = 0;
+    }
+
+    std::atomic_store(&this->current_game_state, this->game_states[current_game_state_idx]);
 }
 
 bool Controller::create_log_file(const std::string &user, const std::string &map_file_name)

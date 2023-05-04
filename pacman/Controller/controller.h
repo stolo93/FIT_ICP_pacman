@@ -100,13 +100,24 @@ private:
      * Handle all user events received since last call and crete next game state
      * Insert newly created game state to the vector of game states and change the game_state_index accordingly
      */
-    void update_game_state();
+    void update_gameplay_state();
 
     /**
      * Handle user events received since last call and change the current state index accordingly
      */
     void update_replay_state();
 
+    /**
+     * Handle user events received while game was paused
+     */
+    void update_pause_state();
+
+    /**
+     * Set current game state according to the current game state index
+     * In case of incorrect index, index will be set to the last state from the state vector
+     */
+
+    void set_current_game_state();
     /**
      * Copy map from @p map_file_name
      * @param user

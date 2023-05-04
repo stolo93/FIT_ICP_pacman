@@ -34,35 +34,35 @@ protected:
 class GraphicsItemPacman : public PacmanGraphicsItem
 {
 public:
-    explicit GraphicsItemPacman(const QString &picture_path = "/home/samuel/fit/4_semester/icp/FIT_ICP_pacman/pacman/GUI/GraphicItems/Pictures/pacman.png");
+    explicit GraphicsItemPacman(const QString &picture_path = ":img/resources/game_objects/pacman.png");
 };
 
 
 class GraphicsItemGhost : public PacmanGraphicsItem
 {
 public:
-    explicit GraphicsItemGhost(const QString &picture_path = "/home/samuel/fit/4_semester/icp/FIT_ICP_pacman/pacman/GUI/GraphicItems/Pictures/ghost.png");
+    explicit GraphicsItemGhost(const QString &picture_path = ":img/resources/game_objects/ghost.png");
 };
 
 
 class GraphicsItemWall : public PacmanGraphicsItem
 {
 public:
-    explicit GraphicsItemWall(const QString &picture_path = "/home/samuel/fit/4_semester/icp/FIT_ICP_pacman/pacman/GUI/GraphicItems/Pictures/wall.png");
+    explicit GraphicsItemWall(const QString &picture_path = ":img/resources/game_objects/wall.png");
 };
 
 
 class GraphicsItemTarget : public PacmanGraphicsItem
 {
 public:
-    explicit GraphicsItemTarget(const QString &picture_path = "/home/samuel/fit/4_semester/icp/FIT_ICP_pacman/pacman/GUI/GraphicItems/Pictures/target.png");
+    explicit GraphicsItemTarget(const QString &picture_path = ":img/resources/game_objects/target.png");
 };
 
 
 class GraphicsItemKey : public PacmanGraphicsItem
 {
 public:
-    explicit GraphicsItemKey(const QString &picture_path = "/home/samuel/fit/4_semester/icp/FIT_ICP_pacman/pacman/GUI/GraphicItems/Pictures/key.png");
+    explicit GraphicsItemKey(const QString &picture_path = ":img/resources/game_objects/key.png");
 };
 
 

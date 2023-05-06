@@ -68,7 +68,10 @@ public:
             (sizeof(Store) * CHAR_BIT - binary_decimals) - std::numeric_limits<Store>::is_signed;
 
     // Initializes a fixed point number with a zero
-    constexpr FixedPointNum() = default;
+    constexpr FixedPointNum()
+    {
+        this->store = 0;
+    };
 
     // Implicitly convert integers into FixedPointNumbers for ease of use
     // NOLINTNEXTLINE(google-explicit-constructor)
@@ -88,6 +91,14 @@ public:
 
         store = value << binary_decimals;
     };
+
+    // Constructor for changing fixed point number precision
+    template<unsigned int other_decimals>
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    constexpr FixedPointNum(FixedPointNum<Store, other_decimals> other)
+    {
+        *this = shift_towards_self(other);
+    }
 
     static constexpr FixedPointNum<Store, binary_decimals> from_float(double num)
     {
@@ -162,17 +173,11 @@ public:
     template<unsigned int other_decimals>
     constexpr FixedPointNum<Store, binary_decimals> operator*(const FixedPointNum<Store, other_decimals> &rhs) const
     {
-        static_assert(sizeof(Store) * CHAR_BIT > binary_decimals * other_decimals,
-                      "Multiplication of values would loose all data");
-#ifdef OVERFLOW_CHECKS
-        if (game::internal::would_multiplication_overflow(store, rhs.store)) {
-            throw std::domain_error("Multiplication of values would overflow");
-        }
-#endif
-        auto large_value = store * rhs.store;
+
+        auto large_value = store * rhs.to_bits();
 
         // We may lose precision with this cast, but we lose precision so often wo consider it to be ok
-        return from_bits(large_value >> ((binary_decimals * other_decimals) - binary_decimals));
+        return from_bits(large_value >> other_decimals);
     }
 
     constexpr FixedPointNum<Store, binary_decimals> operator*(const Store rhs) const
@@ -201,7 +206,7 @@ public:
         if (this->frac() == 0) {
             return this->store >> binary_decimals;
         } else {
-            return (this->integer() + 1).store >> binary_decimals;
+            return (this->store >> binary_decimals) + 1;
         }
     }
 
@@ -225,18 +230,18 @@ public:
 
     [[nodiscard]] constexpr FixedPointNum<Store, binary_decimals> abs() const
     {
-        return FixedPointNum(std::abs(this->store));
+        return FixedPointNum::from_bits(std::abs(this->store));
     }
 
 
     constexpr FixedPointNum<Store, binary_decimals> operator/(const Store &rhs) const
     {
-        return FixedPointNum<Store, binary_decimals>(store / rhs);
+        return FixedPointNum<Store, binary_decimals>::from_bits(store / rhs);
     }
 
 
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals> &operator+=(const FixedPointNum<Store, other_decimals> &rhs) const
+    constexpr FixedPointNum<Store, binary_decimals> &operator+=(const FixedPointNum<Store, other_decimals> &rhs)
     {
         *this = *this + rhs;
         return *this;
@@ -244,7 +249,7 @@ public:
 
 
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals> &operator-=(const FixedPointNum<Store, other_decimals> &rhs) const
+    constexpr FixedPointNum<Store, binary_decimals> &operator-=(const FixedPointNum<Store, other_decimals> &rhs)
     {
         *this = *this - rhs;
         return *this;
@@ -252,14 +257,14 @@ public:
 
 
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals> &operator*=(const FixedPointNum<Store, other_decimals> &rhs) const
+    constexpr FixedPointNum<Store, binary_decimals> &operator*=(const FixedPointNum<Store, other_decimals> &rhs)
     {
         *this = *this * rhs;
         return *this;
     }
 
 
-    constexpr FixedPointNum<Store, binary_decimals> &operator/=(const Store &rhs) const
+    constexpr FixedPointNum<Store, binary_decimals> &operator/=(const Store &rhs)
     {
         *this = *this / rhs;
         return *this;
@@ -297,24 +302,32 @@ public:
 
 private:
     template<unsigned int other_decimals>
-    constexpr FixedPointNum<Store, binary_decimals>
+    [[nodiscard]] constexpr FixedPointNum<Store, binary_decimals>
     shift_towards_self(const FixedPointNum<Store, other_decimals> value) const
     {
+        auto debug_helper = binary_decimals;
+        auto debug_helper2 = other_decimals;
+
+        if (binary_decimals == other_decimals) { return value; }
+
         if (binary_decimals > other_decimals) {
 #ifdef OVERFLOW_CHECKS
-            if (value.floor() > ((1ull << binary_decimals) - 1)) {
+            if (std::abs(value.floor()) > ((1ull << binary_decimals) - 1)) {
                 throw std::domain_error("Number to large to fit into fixed point number");
             }
 
-            if (std::numeric_limits<Store>::is_signed && value.floor() < -(1ull << binary_decimals)) {
+            if (std::numeric_limits<Store>::is_signed && value.floor() < -(1ll << binary_decimals)) {
                 throw std::domain_error("Number to small to fit into fixed point number");
             }
 #endif
-            return FixedPointNum(value.store << (binary_decimals - other_decimals));
-        } else if (binary_decimals < other_decimals) {
+            return FixedPointNum::from_bits(value.to_bits() << (binary_decimals - other_decimals));
+        }
+
+        if (binary_decimals < other_decimals) {
+            if (binary_decimals == other_decimals) { throw std::logic_error("They're equal"); }
             // This conversion will almost always loose precision.
             // Therefore, we don't guard against such scenarios
-            return FixedPointNum(value.store >> (other_decimals - binary_decimals));
+            return FixedPointNum::from_bits(value.to_bits() >> (other_decimals - binary_decimals));
         }
 
         return value;

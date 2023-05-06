@@ -7,7 +7,6 @@
 
 #include "controller.h"
 
-#include "../GameState/GameState.h"
 #include "../GameState/parse.h"
 
 #include <QObject>
@@ -19,11 +18,13 @@
 namespace ctl
 {
 Controller::Controller(QObject *parent)
-    : QObject(parent), key_event_queue(std::make_unique<UserKeyEventQueue>(ctl::queue_capacity))
+    : QObject(parent), key_event_queue(std::make_unique<UserKeyEventQueue>(ctl::QUEUE_CAPACITY)),
+      player_move(game::Pos()), is_in_update()
 {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Controller::on_timer_timeout);
-    timer->start(11);    // 11 ms to achieve approximately 88 updates per second as in original PacMan game
+    timer->start(15);    // 15 ms to achieve a move speed of 64 pixels a second based on some research the original
+                         // pacman was 88 pixels a second but this felt uncontrollable
 }
 
 Controller::~Controller()
@@ -162,41 +163,56 @@ void Controller::on_user_event(QKeyEvent *event)
 
 void Controller::update_gameplay_state()
 {
+    // If we're updating the game state just ignore this update. Otherwise, we would suffer from rollbacks.
+    // try_lock may spuriously fail even if the mutex is unlocked in this case we still skip the update.
+    // Better than possibly rolling back progress. std::lock_guard hasn't been used since it doesn't allow us to use
+    // try_lock
+    if (! is_in_update.try_lock()) { return; }
+
     static const auto STEP {game::FixedPointNum<int64_t, 3>(1) / 8};
-    KeyEvent key_event{};
-    game::FixedPointNum<int64_t, 3> x_direction{0};
-    game::FixedPointNum<int64_t, 3> y_direction{0};
+    static const auto NEGATIVE_STEP {game::FixedPointNum<int64_t, 3>(-1) / 8};
+
+    KeyEvent key_event {};
 
     // Process key events
-    while(! this->key_event_queue->empty()){
+    while (! this->key_event_queue->empty()) {
         this->key_event_queue->pop(key_event);
 
-        // Ignore key release
-        if (key_event.event_type == ctl::KeyEventType::KeyRelease){
-            continue;
-        }
-
-        switch (key_event.key) {
-            case Qt::Key_Left:
-                x_direction = x_direction - STEP;
-                break;
-            case Qt::Key_Right:
-                x_direction = x_direction + STEP;
-                break;
-            case Qt::Key_Up:
-                y_direction = y_direction - STEP;
-                break;
-            case Qt::Key_Down:
-                y_direction = y_direction + STEP;
-                break;
-            default:
-                break;
+        if (key_event.event_type == ctl::KeyEventType::KeyRelease) {
+            switch (key_event.key) {
+                case Qt::Key_Left:
+                case Qt::Key_Right:
+                    player_move.x = 0;
+                    break;
+                case Qt::Key_Up:
+                case Qt::Key_Down:
+                    player_move.y = 0;
+                    break;
+                default:
+                    continue;
+            }
+        } else {
+            switch (key_event.key) {
+                case Qt::Key_Left:
+                    player_move.x = NEGATIVE_STEP;
+                    break;
+                case Qt::Key_Right:
+                    player_move.x = STEP;
+                    break;
+                case Qt::Key_Up:
+                    player_move.y = NEGATIVE_STEP;
+                    break;
+                case Qt::Key_Down:
+                    player_move.y = STEP;
+                    break;
+                default:
+                    continue;
+            }
         }
     }
 
-
     // Make the move
-    auto move_vector = game::Pos(x_direction, y_direction);
+    auto move_vector = player_move;
     auto new_game_state = this->current_game_state->update(move_vector);
     // TODO check for game over
     // If so, change controller state and set screen to game over
@@ -205,17 +221,16 @@ void Controller::update_gameplay_state()
     ++this->current_game_state_idx;
 
     set_current_game_state();
+    is_in_update.unlock();
 }
 
 void Controller::update_replay_state()
 {
-    KeyEvent key_event{};
-    while(! this->key_event_queue->empty()){
+    KeyEvent key_event {};
+    while (! this->key_event_queue->empty()) {
         this->key_event_queue->pop(key_event);
         // Ignore key release
-        if (key_event.event_type == KeyEventType::KeyRelease){
-            continue;
-        }
+        if (key_event.event_type == KeyEventType::KeyRelease) { continue; }
 
         switch (key_event.key) {
             case Qt::Key_Right:
@@ -231,19 +246,18 @@ void Controller::update_replay_state()
     set_current_game_state();
 }
 
-void Controller::update_pause_state() {
-    KeyEvent event{};
+void Controller::update_pause_state()
+{
+    KeyEvent event {};
     // clear input queue
-    while(! this->key_event_queue->empty()){
-        this->key_event_queue->pop(event);
-    }
+    while (! this->key_event_queue->empty()) { this->key_event_queue->pop(event); }
 }
 
-void Controller::set_current_game_state() {
+void Controller::set_current_game_state()
+{
     if (this->current_game_state_idx >= this->game_states.size()) {
         this->current_game_state_idx = this->game_states.size() - 1;
-    }
-    else if (this->current_game_state_idx < 0){
+    } else if (this->current_game_state_idx < 0) {
         this->current_game_state_idx = 0;
     }
 

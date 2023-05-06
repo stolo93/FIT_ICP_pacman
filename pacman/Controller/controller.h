@@ -18,11 +18,12 @@
 #include <QTimer>
 #include <fstream>
 #include <memory>
+#include <mutex>
 
 namespace ctl
 {
 
-const int queue_capacity = 1000;
+const int QUEUE_CAPACITY = 1000;
 using UserKeyEventQueue = boost::lockfree::queue<KeyEvent>;
 
 
@@ -94,6 +95,8 @@ private:
     int current_game_state_idx {};
     QExplicitlySharedDataPointer<game::Map> game_map {};
     std::unique_ptr<UserKeyEventQueue> key_event_queue;
+    game::Pos player_move;
+    std::mutex is_in_update;
     std::fstream log_file {};
 
     /**

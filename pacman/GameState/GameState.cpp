@@ -78,40 +78,40 @@ Pos player_wall_check(Pos player_pos, Pos direction, const QExplicitlySharedData
 
     // Now do wall collisions
     if (direction.x > 0) {
-        auto corrected_player_pos = new_player_pos;
-        corrected_player_pos.x -= one_pixel;
 
         auto top_left_tile_x = (new_player_pos.x + 1).floor();
         auto top_left_tile_y = (new_player_pos.y).floor();
         auto bottom_left_tile_x = (new_player_pos.x + 1).floor();
         auto bottom_left_tile_y = (new_player_pos.y).ceil();
 
-        if (is_wall(map, Pos(player_pos.x + 1, player_pos.y.floor()))) {
-            if (is_box_and_circle_intersecting(corrected_player_pos, Pos(top_left_tile_x, top_left_tile_y))) {
+        if (is_wall(map, Pos(new_player_pos.x + 1, new_player_pos.y.floor()))) {
+            if (is_box_and_circle_intersecting(new_player_pos, Pos(top_left_tile_x, top_left_tile_y))) {
                 new_player_pos.x = player_pos.x;
             }
         }
 
-        if (is_wall(map, Pos(player_pos.x + 1, player_pos.y.ceil()))) {
-            if (is_box_and_circle_intersecting(corrected_player_pos, Pos(bottom_left_tile_x, bottom_left_tile_y))) {
+        if (is_wall(map, Pos(new_player_pos.x + 1, new_player_pos.y.ceil()))) {
+            if (is_box_and_circle_intersecting(new_player_pos, Pos(bottom_left_tile_x, bottom_left_tile_y))) {
                 new_player_pos.x = player_pos.x;
             }
         }
     }
 
     if (direction.x < 0) {
+
+
         auto top_right_tile_x = (new_player_pos.x).floor();
         auto top_right_tile_y = (new_player_pos.y).floor();
         auto bottom_right_tile_x = (new_player_pos.x).floor();
         auto bottom_right_tile_y = (new_player_pos.y).ceil();
 
-        if (is_wall(map, Pos(player_pos.x, player_pos.y.floor()))) {
+        if (is_wall(map, Pos(new_player_pos.x, new_player_pos.y.floor()))) {
             if (is_box_and_circle_intersecting(new_player_pos, Pos(top_right_tile_x, top_right_tile_y))) {
                 new_player_pos.x = player_pos.x;
             }
         }
 
-        if (is_wall(map, Pos(player_pos.x, player_pos.y.ceil()))) {
+        if (is_wall(map, Pos(new_player_pos.x, new_player_pos.y.ceil()))) {
             if (is_box_and_circle_intersecting(new_player_pos, Pos(bottom_right_tile_x, bottom_right_tile_y))) {
                 new_player_pos.x = player_pos.x;
             }
@@ -125,13 +125,13 @@ Pos player_wall_check(Pos player_pos, Pos direction, const QExplicitlySharedData
         auto bottom_right_tile_x = (new_player_pos.x).ceil();
         auto bottom_right_tile_y = (new_player_pos.y + 1).floor();
 
-        if (is_wall(map, Pos(player_pos.x.floor(), player_pos.y + 1))) {
+        if (is_wall(map, Pos(new_player_pos.x.floor(), new_player_pos.y + 1))) {
             if (is_box_and_circle_intersecting(new_player_pos, Pos(bottom_left_tile_x, bottom_left_tile_y))) {
                 new_player_pos.y = player_pos.y;
             }
         }
 
-        if (is_wall(map, Pos(player_pos.x.ceil(), player_pos.y + 1))) {
+        if (is_wall(map, Pos(new_player_pos.x.ceil(), new_player_pos.y + 1))) {
             if (is_box_and_circle_intersecting(new_player_pos, Pos(bottom_right_tile_x, bottom_right_tile_y))) {
                 new_player_pos.y = player_pos.y;
             }
@@ -144,13 +144,13 @@ Pos player_wall_check(Pos player_pos, Pos direction, const QExplicitlySharedData
         auto top_right_tile_x = (new_player_pos.x).ceil();
         auto top_right_tile_y = (new_player_pos.y).floor();
 
-        if (is_wall(map, Pos(player_pos.x.floor(), player_pos.y))) {
+        if (is_wall(map, Pos(new_player_pos.x.floor(), new_player_pos.y))) {
             if (is_box_and_circle_intersecting(new_player_pos, Pos(top_left_tile_x, top_left_tile_y))) {
                 new_player_pos.y = player_pos.y;
             }
         }
 
-        if (is_wall(map, Pos(player_pos.x.ceil(), player_pos.y))) {
+        if (is_wall(map, Pos(new_player_pos.x.ceil(), new_player_pos.y))) {
             if (is_box_and_circle_intersecting(new_player_pos, Pos(top_right_tile_x, top_right_tile_y))) {
                 new_player_pos.y = player_pos.y;
             }

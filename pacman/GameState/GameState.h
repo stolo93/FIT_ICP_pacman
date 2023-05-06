@@ -12,7 +12,8 @@
 namespace game
 {
 
-enum class GameStatus {
+const uint8_t MAX_STATUS = 2;
+enum class GameStatus : std::uint8_t {
     Active = 0,
     Lost = 1,
     Won = 2,

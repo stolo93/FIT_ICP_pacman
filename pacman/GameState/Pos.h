@@ -104,7 +104,7 @@ public:
     {
 
         // Multiply by scaling factor to move the decimals that will get saved in the FixedPointNum into the whole part
-        num *= (double)(1 << binary_decimals);
+        num *= (double) (1 << binary_decimals);
 
 
         // Restore the saved decimals
@@ -185,7 +185,7 @@ public:
         return *this * FixedPointNum(rhs);
     }
 
-    constexpr FixedPointNum<Store, binary_decimals> frac() const noexcept
+    [[nodiscard]] constexpr FixedPointNum<Store, binary_decimals> frac() const noexcept
     {
         auto mask = game::internal::create_frac_mask<Store>(binary_decimals);
 
@@ -193,7 +193,7 @@ public:
     }
 
 
-    constexpr FixedPointNum<Store, binary_decimals> integer() const noexcept
+    [[nodiscard]] constexpr FixedPointNum<Store, binary_decimals> integer() const noexcept
     {
         auto mask = game::internal::create_frac_mask<Store>(binary_decimals);
 
@@ -305,9 +305,6 @@ private:
     [[nodiscard]] constexpr FixedPointNum<Store, binary_decimals>
     shift_towards_self(const FixedPointNum<Store, other_decimals> value) const
     {
-        auto debug_helper = binary_decimals;
-        auto debug_helper2 = other_decimals;
-
         if (binary_decimals == other_decimals) { return value; }
 
         if (binary_decimals > other_decimals) {
@@ -343,6 +340,7 @@ public:
     FixedPointNum<std::int64_t, 3> x;
     FixedPointNum<std::int64_t, 3> y;
 
+    constexpr Pos() noexcept : x(0), y(0) {};
     constexpr Pos(game::FixedPointNum<int64_t, 3> x, game::FixedPointNum<int64_t, 3> y) noexcept : x(x), y(y) {}
 
     [[nodiscard]] constexpr Pos floor() const

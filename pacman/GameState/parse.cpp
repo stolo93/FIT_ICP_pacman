@@ -110,7 +110,7 @@ std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_map
                     }
 
                     maybe_player = Player(Pos(column, row));
-                    row_contents.push_back(MapElement::EmptySpace);
+                    row_contents.push_back(MapElement::Start);
                     break;
                 case 'T':
                     if (maybe_exit) {
@@ -119,7 +119,7 @@ std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_map
                     }
 
                     maybe_exit = Pos(column, row);
-                    row_contents.push_back(MapElement::EmptySpace);
+                    row_contents.push_back(MapElement::End);
                     break;
                 default:
                     // Unknown map element

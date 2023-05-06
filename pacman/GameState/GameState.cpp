@@ -185,7 +185,23 @@ GameState GameState::update(Pos direction)
         }
     }
 
-    return {map, new_game_state, state_number + 1, ghosts, new_player_pos, exit, keys};
+    auto new_keys = keys;
+    auto keys_to_remove = std::vector<int>();
+
+    for (int i = 0; i < keys.length(); ++i) {
+        if (is_box_and_circle_intersecting(keys[i], player.position)) { keys_to_remove.push_back(i); }
+    }
+
+    // If we delete an element it will shift all the following elements we need to account for that;
+    int delete_shift = 0;
+    if (! keys_to_remove.empty()) {
+        for (int key_index : keys_to_remove) {
+            new_keys.remove(key_index - delete_shift);
+            delete_shift++;
+        }
+    }
+
+    return {map, new_game_state, state_number + 1, ghosts, new_player_pos, exit, new_keys};
 }
 bool GameState::has_lost()
 {

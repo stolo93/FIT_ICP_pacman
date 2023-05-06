@@ -104,7 +104,7 @@ public:
     {
 
         // Multiply by scaling factor to move the decimals that will get saved in the FixedPointNum into the whole part
-        num *= (1 << binary_decimals);
+        num *= (double)(1 << binary_decimals);
 
 
         // Restore the saved decimals

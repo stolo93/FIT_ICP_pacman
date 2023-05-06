@@ -2,13 +2,24 @@
 
 #include "boost/endian/buffers.hpp"
 
+#include <utility>
+#include <variant>
+
+#define READ_OR_RETURN_EMPTY(stream, variable)                                                                         \
+    (stream) >> (variable);                                                                                            \
+    if (! stream) { return {}; }
+
+#define WRITE_OR_RETURN_EMPTY(stream, value)                                                                           \
+    (stream) << value;                                                                                                 \
+    if (! stream) { return {}; }
+
 std::optional<std::size_t> parse_number_from_stream(std::istream &input)
 {
     auto text_value = std::string();
 
     char character;
     while (input.get(character)) {
-        if (std::iswspace(character)) { break; }
+        if (iswspace(character)) { break; }
 
         if (! std::isdigit(character)) { return {}; }
 
@@ -138,7 +149,66 @@ std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_map
     return std::pair {map_ptr, first_state};
 }
 
-std::optional<GameState> parse_state_from_stream(std::istream &input)
+std::optional<Pos> parse_pos_from_stream(std::istream &input)
+{
+    /*
+     * The pos struct is serialized as:
+     * x, 8 byte little endian integer
+     * y, 8 byte little endian integer
+     */
+
+    boost::endian::little_int64_buf_t x, y;
+    READ_OR_RETURN_EMPTY(input, x)
+    READ_OR_RETURN_EMPTY(input, y)
+
+    // Fixed point integers are saved byte for byte
+    return Pos(FixedPointNum<std::int64_t, 3>::from_bits(x.value()),
+               FixedPointNum<std::int64_t, 3>::from_bits(y.value()));
+}
+
+std::optional<Player> parse_player_from_stream(std::istream &input)
+{
+    /*
+     * The Player class is serialized as:
+     *
+     * tag, 1 byte tag that's always 0x3
+     * position, sizeof(Pos) Pos struct
+     */
+
+    std::uint8_t tag;
+    input >> tag;
+    if (! input) { return {}; }
+
+    if (tag != static_cast<std::uint8_t>(SerializationTags::PlayerTag)) { return {}; }
+
+    std::optional<Pos> maybe_pos = parse_pos_from_stream(input);
+    if (! maybe_pos) { return {}; }
+
+    return Player(maybe_pos.value());
+}
+
+std::optional<Ghost> parse_ghost_from_stream(std::istream &input)
+{
+    /*
+     * The Ghost class is serialized as:
+     *
+     * tag, 1 byte tag that's always 0x2
+     * position, sizeof(Pos) Pos struct
+     */
+
+    std::uint8_t tag;
+    input >> tag;
+    if (! input) { return {}; }
+
+    if (tag != static_cast<std::uint8_t>(SerializationTags::GhostTag)) { return {}; }
+
+    std::optional<Pos> maybe_pos = parse_pos_from_stream(input);
+    if (! maybe_pos) { return {}; }
+
+    return Ghost(maybe_pos.value());
+}
+
+std::optional<GameState> parse_state_from_stream(std::istream &input, QExplicitlySharedDataPointer<Map> map_to_attach)
 {
     /*
      * The field layout for a saved GameState is:
@@ -151,8 +221,8 @@ std::optional<GameState> parse_state_from_stream(std::istream &input)
      * keys, dynamically sized vector of Pos structs
      * ghosts, dynamically sized vector of Ghost structs
      *
-     * Vectors are laid out as size 8 byte little endian integer specifying the number of elements that follow
-     * elements n*size bytes of elements inside the vector
+     * Vectors are laid out as 8 bytes unsigned little endian integer specifying the length of the vector and
+     * len * sizeof(element) bytes for the packed elements found in the vector
      *
      * The pos struct is serialized as 2 8 byte little endian integers
      */
@@ -170,10 +240,94 @@ std::optional<GameState> parse_state_from_stream(std::istream &input)
         return {};
     }
 
-    boost::endian::little_int64_buf_t pure_data[3] = {};
-    auto x = pure_data[0].value();
+    std::uint8_t status;
+    input >> status;
 
-    return {};
+    if (status > MAX_STATUS) { return {}; }
+
+    boost::endian::little_int64_buf_t state_number;
+    READ_OR_RETURN_EMPTY(input, state_number)
+
+    std::optional<Pos> maybe_exit_location = parse_pos_from_stream(input);
+    if (! maybe_exit_location) { return {}; }
+
+    std::optional<Player> maybe_player = parse_player_from_stream(input);
+
+    boost::endian::little_uint64_buf_t key_count;
+    READ_OR_RETURN_EMPTY(input, key_count)
+    auto keys = QVector<Pos>();
+
+    for (uint64_t i = 0; i < key_count.value(); i++) {
+        std::optional<Pos> maybe_key = parse_pos_from_stream(input);
+        if (! maybe_key) { return {}; }
+        keys.push_back(maybe_key.value());
+    }
+
+    boost::endian::little_uint64_buf_t ghost_num;
+    READ_OR_RETURN_EMPTY(input, key_count)
+    auto ghosts = QVector<Ghost>();
+
+    for (uint64_t i = 0; i < ghost_num.value(); i++) {
+        std::optional<Ghost> maybe_ghost = parse_ghost_from_stream(input);
+        if (! maybe_ghost) { return {}; }
+        ghosts.push_back(maybe_ghost.value());
+    }
+
+    return GameState(std::move(map_to_attach), GameStatus(status), state_number.value(), ghosts, maybe_player.value(),
+                     maybe_exit_location.value(), keys);
 }
 
+std::optional<std::monostate> write_pos_to_stream(std::ostream &output, const Pos &pos)
+{
+    auto x = boost::endian::little_int64_buf_t(pos.x.to_bits());
+    auto y = boost::endian::little_int64_buf_t(pos.y.to_bits());
+
+    WRITE_OR_RETURN_EMPTY(output, x)
+    WRITE_OR_RETURN_EMPTY(output, y)
+
+    return std::monostate();
+}
+
+std::optional<std::monostate> write_player_to_stream(std::ostream &output, const Player &player)
+{
+    WRITE_OR_RETURN_EMPTY(output, static_cast<std::uint8_t>(SerializationTags::PlayerTag))
+    if (! write_pos_to_stream(output, player.position)) { return {}; }
+
+    return std::monostate();
+}
+
+std::optional<std::monostate> write_ghost_to_stream(std::ostream &output, const Ghost &ghost)
+{
+    WRITE_OR_RETURN_EMPTY(output, static_cast<std::uint8_t>(SerializationTags::GhostTag))
+    if (! write_pos_to_stream(output, ghost.position)) { return {}; }
+
+    return std::monostate();
+}
+
+// Returns empty optional on failure to write and an optional containing std::monostate on success
+std::optional<std::monostate> write_state_to_stream(std::ostream &output, const GameState &state)
+{
+    WRITE_OR_RETURN_EMPTY(output, static_cast<std::uint8_t>(SerializationTags::StateTag))
+
+    WRITE_OR_RETURN_EMPTY(output, static_cast<std::uint8_t>(state.state))
+
+    auto state_num = boost::endian::little_uint64_buf_t(state.state_number);
+    WRITE_OR_RETURN_EMPTY(output, state_num)
+
+    if (! write_pos_to_stream(output, state.exit)) { return {}; }
+
+    if (! write_player_to_stream(output, state.player)) { return {}; }
+
+    WRITE_OR_RETURN_EMPTY(output, boost::endian::little_uint64_buf_t(state.keys.length()))
+    for (auto key : state.keys) {
+        if (! write_pos_to_stream(output, key)) { return {}; }
+    }
+
+    WRITE_OR_RETURN_EMPTY(output, boost::endian::little_uint64_buf_t(state.ghosts.length()))
+    for (auto ghost : state.ghosts) {
+        if (! write_ghost_to_stream(output, ghost)) { return {}; }
+    }
+
+    return std::monostate();
+}
 }    // namespace game

@@ -12,8 +12,15 @@
 namespace game
 {
 
+enum class GameStatus {
+    Active = 0,
+    Lost = 1,
+    Won = 2,
+};
+
 struct GameState {
 public:
+    const GameStatus state;
     const uint64_t state_number;
     const QExplicitlySharedDataPointer<Map> map;
     const QVector<Ghost> ghosts;
@@ -23,8 +30,11 @@ public:
 
 
     GameState update(Pos direction);
-    GameState(QExplicitlySharedDataPointer<Map> map, uint64_t state_number, QVector<Ghost> ghosts, Player player,
-              Pos exit, QVector<Pos> keys);
+    GameState(QExplicitlySharedDataPointer<Map> map, GameStatus status, uint64_t state_number, QVector<Ghost> ghosts,
+              Player player, Pos exit, QVector<Pos> keys);
+
+    bool has_won();
+    bool has_lost();
 };
 
 

@@ -132,7 +132,8 @@ std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_map
     }
 
     auto map_ptr = QExplicitlySharedDataPointer<Map>(new Map(width, height, map));
-    auto first_state = GameState(map_ptr, 0, ghosts, maybe_player.value(), maybe_exit.value(), keys);
+    auto first_state =
+            GameState(map_ptr, GameStatus::Active, 0, ghosts, maybe_player.value(), maybe_exit.value(), keys);
 
     return std::pair {map_ptr, first_state};
 }
@@ -143,6 +144,7 @@ std::optional<GameState> parse_state_from_stream(std::istream &input)
      * The field layout for a saved GameState is:
      *
      * StateTag, 1 byte (constant, always set to 0x01)
+     * status, 1 byte
      * state_number, 8 byte little endian integer
      * exit, sizeof(Pos) bytes
      * player, sizeof(Player) bytes

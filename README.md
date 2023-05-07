@@ -6,7 +6,7 @@ square without touching the ghosts more than two times. Our implementation featu
 counter and display, as well as the ability to switch freely between Replay and Play modes, enabling players to continue
 the game from any point. The ghost movement is powered by a greedy path search AI algorithm.
 
-### Main Menu Options
+## Main Menu Options
 
 #### New Game
 
@@ -18,7 +18,7 @@ the Start Game button, the user is taken to the game screen.
 In the Load Game option, the user is prompted to choose a previously saved .log file. After selecting the file and
 pressing the Start Game button, the user is taken to the game screen.
 
-### In-Game Modes
+## In-Game Modes
 
 #### Play
 
@@ -33,7 +33,7 @@ the left and right arrow keys.
 
 This mode simply pauses the game.
 
-### Controls
+## Controls
 
 Players can switch between modes using the buttons at the top of the screen or by pressing the following keys:
 
@@ -44,12 +44,12 @@ Players can switch between modes using the buttons at the top of the screen or b
 To control the gameplay, use the arrow keys to move the Pacman character. In Replay mode, hold the left and right arrow
 keys to control the playback.
 
-### Logging
+## Logging
 
 Upon finishing a game in New Game mode, a .log file with the player's nickname is created. This log file can be used in
 the Load Game option to replay the game.
 
-### Interactive Features
+## Interactive Features
 
 #### Life Counter and Display
 
@@ -64,9 +64,6 @@ from any point.
 
 The ghost movement is powered by a greedy path search AI algorithm, providing challenging gameplay for players.
 
-### Getting Started
-
-To play the game, simply compile and run the project. Follow the on-screen prompts to start a new game
-or load a previous game. Enjoy!
-
+## Building
+To build the project first install qt 5 then run `make all` in the root directory you executable should located in `./build/pacman`. Enjoy.
 

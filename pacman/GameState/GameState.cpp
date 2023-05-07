@@ -161,6 +161,7 @@ Pos player_wall_check(Pos player_pos, Pos direction, const QExplicitlySharedData
 }
 GameState GameState::update(Pos direction)
 {
+    static const int GHOST_TIMEOUT = 30;
     if (this->has_lost() || this->has_won()) {
         return {map, state, state_number + 1, ghosts, player.position, exit, keys};
     }
@@ -178,11 +179,19 @@ GameState GameState::update(Pos direction)
     // Ghost pathfinding goes here
 
 
-    for (Ghost ghost : ghosts) {
+    auto new_ghosts = ghosts;
+    for (auto& ghost : new_ghosts){
         if (is_box_and_circle_intersecting(ghost.position, player.position)) {
             new_game_state = GameStatus::Lost;
             break;
         }
+        if (this->state_number % GHOST_TIMEOUT == 0){
+            auto new_position = ghost.get_next_pos(map, player.position);
+            if (! is_wall(map, new_position)){
+                ghost.position = new_position;
+            }
+        }
+
     }
 
     auto new_keys = keys;
@@ -201,7 +210,7 @@ GameState GameState::update(Pos direction)
         }
     }
 
-    return {map, new_game_state, state_number + 1, ghosts, new_player_pos, exit, new_keys};
+    return {map, new_game_state, state_number + 1, new_ghosts, new_player_pos, exit, new_keys};
 }
 bool GameState::has_lost()
 {

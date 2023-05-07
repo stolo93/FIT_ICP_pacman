@@ -152,8 +152,8 @@ std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_map
 
     auto map_ptr = QExplicitlySharedDataPointer<Map>(new Map(width, height, map));
     uint8_t player_lives = 3;
-    auto first_state =
-            GameState(map_ptr, GameStatus::Active, 0, ghosts, maybe_player.value(), player_lives, maybe_exit.value(), keys);
+    auto first_state = GameState(map_ptr, GameStatus::Active, 0, ghosts, maybe_player.value(), player_lives,
+                                 maybe_exit.value(), keys);
 
     return std::pair {map_ptr, first_state};
 }
@@ -222,8 +222,9 @@ std::optional<GameState> parse_state_from_stream(std::istream &input, QExplicitl
     /*
      * The field layout for a saved GameState is:
      *
-     * StateTag, 1 byte (constant, always set to SerializationTags::StateTag)
-     * status, 1 byte
+     * StateTag, 1 unsigned byte (constant, always set to SerializationTags::StateTag)
+     * status, 1 unsigned byte
+     * live count, 1 unsigned byte
      * state_number, 8 byte little endian integer
      * exit, sizeof(Pos) bytes
      * player, sizeof(Player) bytes
@@ -250,9 +251,11 @@ std::optional<GameState> parse_state_from_stream(std::istream &input, QExplicitl
     }
 
     std::uint8_t status;
-    READ_OR_RETURN_EMPTY(input, status);
-
+    READ_OR_RETURN_EMPTY(input, status)
     if (status > MAX_STATUS) { return {}; }
+
+    std::uint8_t lives;
+    READ_OR_RETURN_EMPTY(input, lives);
 
     boost::endian::little_int64_buf_t state_number;
     READ_BUF_OR_RETURN_EMPTY(input, state_number)
@@ -281,9 +284,8 @@ std::optional<GameState> parse_state_from_stream(std::istream &input, QExplicitl
         if (! maybe_ghost) { return {}; }
         ghosts.push_back(maybe_ghost.value());
     }
-    uint8_t  player_lives = 3;
     return GameState(std::move(map_to_attach), GameStatus(status), state_number.value(), ghosts, maybe_player.value(),
-                     player_lives ,maybe_exit_location.value(), keys);
+                     lives, maybe_exit_location.value(), keys);
 }
 
 std::optional<std::monostate> write_pos_to_stream(std::ostream &output, const Pos &pos)
@@ -323,6 +325,8 @@ std::optional<std::monostate> write_state_to_stream(std::ostream &output, const 
 
     auto cast_state = static_cast<std::uint8_t>(state.state);
     WRITE_OR_RETURN_EMPTY(output, cast_state)
+
+    WRITE_OR_RETURN_EMPTY(output, state.player_lives)
 
     auto state_num = boost::endian::little_uint64_buf_t(state.state_number);
     WRITE_BUF_OR_RETURN_EMPTY(output, state_num)

@@ -46,6 +46,7 @@ void Controller::connect_main_window(const view::PacmanMainWindow *main_window) 
     // Connect controller signals to main window slots
     connect(this, &Controller::update_game_screen, main_window, &view::PacmanMainWindow::on_update_game_screen);
     connect(this, &Controller::init_game_screen, main_window, &view::PacmanMainWindow::on_init_game_screen);
+    connect(this, &Controller::end_game, main_window, &view::PacmanMainWindow::on_end_game);
 }
 
 void Controller::on_timer_timeout()

@@ -26,16 +26,18 @@ public:
     const QExplicitlySharedDataPointer<Map> map;
     const QVector<Ghost> ghosts;
     const Player player;
+    const uint8_t player_lives;
     const Pos exit;
     const QVector<Pos> keys;
 
 
     GameState update(Pos direction);
     GameState(QExplicitlySharedDataPointer<Map> map, GameStatus status, uint64_t state_number, QVector<Ghost> ghosts,
-              Player player, Pos exit, QVector<Pos> keys);
+              Player player,uint8_t player_lives, Pos exit, QVector<Pos> keys);
 
     bool has_won();
     bool has_lost();
+    uint8_t get_life_count();
 };
 
 

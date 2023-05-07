@@ -151,8 +151,9 @@ std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_map
     }
 
     auto map_ptr = QExplicitlySharedDataPointer<Map>(new Map(width, height, map));
+    uint8_t player_lives = 3;
     auto first_state =
-            GameState(map_ptr, GameStatus::Active, 0, ghosts, maybe_player.value(), maybe_exit.value(), keys);
+            GameState(map_ptr, GameStatus::Active, 0, ghosts, maybe_player.value(), player_lives, maybe_exit.value(), keys);
 
     return std::pair {map_ptr, first_state};
 }
@@ -280,9 +281,9 @@ std::optional<GameState> parse_state_from_stream(std::istream &input, QExplicitl
         if (! maybe_ghost) { return {}; }
         ghosts.push_back(maybe_ghost.value());
     }
-
+    uint8_t  player_lives = 3;
     return GameState(std::move(map_to_attach), GameStatus(status), state_number.value(), ghosts, maybe_player.value(),
-                     maybe_exit_location.value(), keys);
+                     player_lives ,maybe_exit_location.value(), keys);
 }
 
 std::optional<std::monostate> write_pos_to_stream(std::ostream &output, const Pos &pos)

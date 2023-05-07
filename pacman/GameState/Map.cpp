@@ -24,4 +24,15 @@ Map::Map(std::size_t width, std::size_t height, QVector<QVector<MapElement>> map
 {
 }
 
+    Pos Map::get_player_start_position() const {
+        for (int i = 0; i < width; ++i){
+            for (int j = 0; j < height; ++j){
+                if (get_map()[j][i] == MapElement::Start){
+                    return {i, j};
+                }
+            }
+        }
+        return {0,0};
+    }
+
 }    // namespace game

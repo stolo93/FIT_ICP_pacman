@@ -62,10 +62,10 @@ bool is_wall(const QExplicitlySharedDataPointer<Map> &map, Pos pos)
 
 
 GameState::GameState(QExplicitlySharedDataPointer<Map> map, GameStatus status, uint64_t state_number,
-                     QVector<Ghost> ghosts, Player player, Pos exit, QVector<Pos> keys)
+                     QVector<Ghost> ghosts,
+                     Player player, uint8_t player_lives, Pos exit, QVector<Pos> keys)
     : map(std::move(map)), state(status), state_number(state_number), ghosts(std::move(ghosts)), player(player),
-      exit(exit), keys(std::move(keys))
-{
+      exit(exit), keys(std::move(keys)), player_lives(player_lives) {
 }
 
 Pos player_wall_check(Pos player_pos, Pos direction, const QExplicitlySharedDataPointer<Map> &map)
@@ -164,7 +164,7 @@ GameState GameState::update(Pos direction)
 {
     static const int GHOST_TIMEOUT = 30;
     if (this->has_lost() || this->has_won()) {
-        return {map, state, state_number + 1, ghosts, player.position, exit, keys};
+        return {map, state, state_number + 1, ghosts, player.position, player_lives, exit, keys};
     }
 
     auto new_game_state = GameStatus::Active;
@@ -179,11 +179,15 @@ GameState GameState::update(Pos direction)
 
     // Ghost pathfinding goes here
 
-
+    uint8_t new_player_lives = player_lives;
     auto new_ghosts = ghosts;
     for (auto &ghost : new_ghosts) {
         if (is_box_and_circle_intersecting(ghost.position, player.position)) {
-            new_game_state = GameStatus::Lost;
+            if (player_lives == 1){new_game_state = GameStatus::Lost;}
+            else{
+                --new_player_lives;
+                new_player_pos = map->get_player_start_position();
+            }
             break;
         }
         if (this->state_number % GHOST_TIMEOUT == 0) {
@@ -201,7 +205,7 @@ GameState GameState::update(Pos direction)
         }
     }
 
-    return {map, new_game_state, state_number + 1, new_ghosts, new_player_pos, exit, new_keys};
+    return {map, new_game_state, state_number + 1, new_ghosts, new_player_pos, new_player_lives, exit, new_keys};
 }
 
 bool GameState::has_lost()
@@ -212,6 +216,10 @@ bool GameState::has_lost()
 bool GameState::has_won()
 {
     return this->state == GameStatus::Won;
+}
+
+uint8_t GameState::get_life_count() {
+    return player_lives;
 }
 
 }    // namespace game

@@ -10,6 +10,7 @@
 
 #include "../pacman.h"
 #include "game_view.h"
+#include "livesdisplayimage.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -53,6 +54,7 @@ private slots:
 
 private:
     std::unique_ptr<GameView> graphics_view;
+    LivesDisplayImage* lives_display;
 };
 }    // namespace view
 

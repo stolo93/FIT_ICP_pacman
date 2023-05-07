@@ -13,7 +13,7 @@
 
 namespace view
 {
-ScreenGame::ScreenGame(QWidget *parent) : QWidget(parent), graphics_view(std::make_unique<GameView>())
+ScreenGame::ScreenGame(QWidget *parent) : QWidget(parent), graphics_view(std::make_unique<GameView>()), lives_display(new LivesDisplayImage())
 {
     // Create layout for game screen
     auto layout = new QGridLayout(this);
@@ -45,16 +45,19 @@ ScreenGame::ScreenGame(QWidget *parent) : QWidget(parent), graphics_view(std::ma
     buttons_layout->addWidget(replay_button);
 
     layout->addWidget(buttons, 0, 1);
+    layout->addWidget(lives_display, 2, 1);
     layout->addWidget(graphics_view.get(), 1, 1);
 }
 
 void ScreenGame::on_init_scene(std::shared_ptr<game::GameState> game_state)
 {
+    this->lives_display->update_lives_count(game_state->player_lives);
     emit this->init_scene(std::move(game_state));
 }
 
 void ScreenGame::on_update_scene(std::shared_ptr<game::GameState> game_state)
 {
+    this->lives_display->update_lives_count(game_state->player_lives);
     emit this->update_scene(std::move(game_state));
 }
 

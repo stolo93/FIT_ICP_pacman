@@ -39,7 +39,7 @@ set(PROJECT_SOURCES
         GUI/GraphicItems/item_wall.cpp
         GUI/GraphicItems/item_target.cpp
         GUI/GraphicItems/item_key.cpp
-        GameState/astar.h GameState/astar.cpp GUI/ScreenEndGame/screenendgame.cpp)
+        GameState/astar.h GameState/astar.cpp GUI/ScreenEndGame/screenendgame.cpp GUI/ScreenGame/livesdisplay.cpp GUI/ScreenGame/livesdisplay.h GUI/ScreenGame/livesdisplayimage.cpp GUI/ScreenGame/livesdisplayimage.h)
 
 include_directories(include)
 add_compile_definitions(OVERFLOW_CHECKS)

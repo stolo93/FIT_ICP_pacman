@@ -6,7 +6,7 @@
 #include <variant>
 
 #define READ_OR_RETURN_EMPTY(stream, variable)                                                                         \
-    (stream).write(&variable, sizeof(variable));                                                                       \
+    (stream).read((char *) &variable, sizeof(variable));                                                               \
     if (! stream) { return {}; }
 
 #define READ_BUF_OR_RETURN_EMPTY(stream, buf)                                                                          \
@@ -184,7 +184,7 @@ std::optional<Player> parse_player_from_stream(std::istream &input)
      */
 
     std::uint8_t tag;
-    input >> tag;
+    READ_OR_RETURN_EMPTY(input, tag)
     if (! input) { return {}; }
 
     if (tag != static_cast<std::uint8_t>(SerializationTags::PlayerTag)) { return {}; }
@@ -205,7 +205,7 @@ std::optional<Ghost> parse_ghost_from_stream(std::istream &input)
      */
 
     std::uint8_t tag;
-    input >> tag;
+    READ_OR_RETURN_EMPTY(input, tag)
     if (! input) { return {}; }
 
     if (tag != static_cast<std::uint8_t>(SerializationTags::GhostTag)) { return {}; }
@@ -237,7 +237,7 @@ std::optional<GameState> parse_state_from_stream(std::istream &input, QExplicitl
 
     // The tags have to be loaded
     std::uint8_t state_tag;
-    input >> state_tag;
+    READ_OR_RETURN_EMPTY(input, state_tag)
     if (! input) {
         // input can't provide data while we still need it
         return {};
@@ -249,7 +249,7 @@ std::optional<GameState> parse_state_from_stream(std::istream &input, QExplicitl
     }
 
     std::uint8_t status;
-    input >> status;
+    READ_OR_RETURN_EMPTY(input, status);
 
     if (status > MAX_STATUS) { return {}; }
 
@@ -272,7 +272,7 @@ std::optional<GameState> parse_state_from_stream(std::istream &input, QExplicitl
     }
 
     boost::endian::little_uint64_buf_t ghost_num;
-    READ_BUF_OR_RETURN_EMPTY(input, key_count)
+    READ_BUF_OR_RETURN_EMPTY(input, ghost_num)
     auto ghosts = QVector<Ghost>();
 
     for (uint64_t i = 0; i < ghost_num.value(); i++) {

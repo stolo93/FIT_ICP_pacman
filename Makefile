@@ -6,3 +6,9 @@ cmake_config:
 
 run: all
 	./build/pacman
+
+doc:
+	doxygen Doxyfile
+
+.PHONY: doc run cmake_config all
+

@@ -34,7 +34,7 @@ protected:
 class GraphicsItemPacman : public PacmanGraphicsItem
 {
 public:
-    explicit GraphicsItemPacman(const QString &picture_path = ":img/resources/game_objects/pacman.png");
+    explicit GraphicsItemPacman(const QString &picture_path = ":img/resources/game_objects/src.png");
 };
 
 

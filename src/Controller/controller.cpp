@@ -24,7 +24,7 @@ Controller::Controller(QObject *parent)
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Controller::on_timer_timeout);
     timer->start(15);    // 15 ms to achieve a move speed of 64 pixels a second based on some research the original
-                         // pacman was 88 pixels a second but this felt uncontrollable
+                         // src was 88 pixels a second but this felt uncontrollable
 }
 
 Controller::~Controller()
@@ -135,11 +135,11 @@ void Controller::on_start_replay(const std::string &log_file_name)
     this->current_game_state_idx = 0;
 
     // Load all other game states into the state while (true)
-        while (true) {
-            auto current_state = game::parse_state_from_stream(this->log_file, this->game_map);
-            if (! current_state.has_value()) { break; }
-            this->game_states.push_back(std::make_shared<game::GameState>(current_state.value()));
-        }
+    while (true) {
+        auto current_state = game::parse_state_from_stream(this->log_file, this->game_map);
+        if (! current_state.has_value()) { break; }
+        this->game_states.push_back(std::make_shared<game::GameState>(current_state.value()));
+    }
 
     this->state = ControllerState::StateReplay;
     emit this->init_game_screen(std::atomic_load(&current_game_state));
@@ -148,9 +148,11 @@ void Controller::on_start_replay(const std::string &log_file_name)
 
 void Controller::on_set_controller_state(ControllerState new_state)
 {
-    if (state == ControllerState::StateReplay && new_state == ControllerState::StateGameplay){
-        std::cerr << "Info: replay -> play : state_count = " << game_states.size() << ", index = " << current_game_state_idx << std::endl;        // If current game state index is smaller than number of states, trim state vector
-        game_states.resize(current_game_state_idx+1);
+    if (state == ControllerState::StateReplay && new_state == ControllerState::StateGameplay) {
+        std::cerr << "Info: replay -> play : state_count = " << game_states.size()
+                  << ", index = " << current_game_state_idx
+                  << std::endl;    // If current game state index is smaller than number of states, trim state vector
+        game_states.resize(current_game_state_idx + 1);
         set_current_game_state();
     }
     this->state = new_state;
@@ -225,7 +227,7 @@ void Controller::update_gameplay_state()
 
     set_current_game_state();
     is_in_update.unlock();
-    if (current_game_state->has_won() || current_game_state->has_lost()){
+    if (current_game_state->has_won() || current_game_state->has_lost()) {
         std::cerr << "Info: game end, number of states: " << game_states.size() << std::endl;
         log_states();
         this->state = ControllerState::StateNotSetup;
@@ -309,9 +311,8 @@ bool Controller::create_log_file(const std::string &user, const std::string &map
     return true;
 }
 
-void Controller::log_states() {
-    for (const auto& state : this->game_states){
-        game::write_state_to_stream(this->log_file, *state);
-    }
+void Controller::log_states()
+{
+    for (const auto &state : this->game_states) { game::write_state_to_stream(this->log_file, *state); }
 }
 }    // namespace ctl

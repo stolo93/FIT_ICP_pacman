@@ -71,7 +71,6 @@ void Controller::on_timer_timeout()
             update_replay_state();
         }
     }
-    std::cerr << "Info: game state idx timeout = " << current_game_state_idx << std::endl;
     emit update_game_screen(std::atomic_load(&current_game_state));
 }
 

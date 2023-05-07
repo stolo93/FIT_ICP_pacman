@@ -53,6 +53,12 @@ signals:
      */
     void init_game_screen(const std::shared_ptr<game::GameState> game_state);
 
+    /**
+     * Send information about game end
+     * @param result
+     */
+    void end_game(GameResult result);
+
 public slots:
 
     /**
@@ -128,6 +134,11 @@ private:
      * @return
      */
     bool create_log_file(const std::string &user, const std::string &map_file_name);
+
+    /**
+     * Log all states to log file
+     */
+    void log_states();
 };
 }    // namespace ctl
 

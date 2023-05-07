@@ -58,9 +58,26 @@ void ScreenGame::on_update_scene(std::shared_ptr<game::GameState> game_state)
     emit this->update_scene(std::move(game_state));
 }
 
-void ScreenGame::on_user_event(QKeyEvent *event)
-{
-    emit this->user_event(event);
+void ScreenGame::on_user_event(QKeyEvent *event) {
+    switch (event->key()) {
+        case Qt::Key::Key_Left:
+        case Qt::Key::Key_Right:
+        case Qt::Key::Key_Up:
+        case Qt::Key::Key_Down:
+            emit this->user_event(event);
+            break;
+        case Qt::Key::Key_P:
+            emit this->set_controller_state(ctl::ControllerState::StateGameplay);
+            break;
+        case Qt::Key::Key_R:
+            emit this->set_controller_state(ctl::ControllerState::StateReplay);
+            break;
+        case Qt::Key::Key_Escape:
+            emit this->set_controller_state(ctl::ControllerState::StatePaused);
+            break;
+        default:
+            break;
+    }
 }
 
 void ScreenGame::on_click_play()

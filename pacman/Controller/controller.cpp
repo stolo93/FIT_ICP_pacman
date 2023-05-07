@@ -70,6 +70,7 @@ void Controller::on_timer_timeout()
             update_replay_state();
         }
     }
+    std::cerr << "Info: game state idx timeout = " << current_game_state_idx << std::endl;
     emit update_game_screen(std::atomic_load(&current_game_state));
 }
 
@@ -134,12 +135,11 @@ void Controller::on_start_replay(const std::string &log_file_name)
     this->current_game_state_idx = 0;
 
     // Load all other game states into the state while (true)
-    // TODO add when game::parse_state_from_stream is fixed
-    //    while (true) {
-    //        auto current_state = game::parse_state_from_stream(this->log_file, this->game_map);
-    //        if (! current_state.has_value()) { break; }
-    //        this->game_states.push_back(std::make_shared<game::GameState>(current_state.value()));
-    //    }
+        while (true) {
+            auto current_state = game::parse_state_from_stream(this->log_file, this->game_map);
+            if (! current_state.has_value()) { break; }
+            this->game_states.push_back(std::make_shared<game::GameState>(current_state.value()));
+        }
 
     this->state = ControllerState::StateReplay;
     emit this->init_game_screen(std::atomic_load(&current_game_state));
@@ -148,6 +148,11 @@ void Controller::on_start_replay(const std::string &log_file_name)
 
 void Controller::on_set_controller_state(ControllerState new_state)
 {
+    if (state == ControllerState::StateReplay && new_state == ControllerState::StateGameplay){
+        std::cerr << "Info: replay -> play : state_count = " << game_states.size() << ", index = " << current_game_state_idx << std::endl;        // If current game state index is smaller than number of states, trim state vector
+        game_states.resize(current_game_state_idx+1);
+        set_current_game_state();
+    }
     this->state = new_state;
 }
 
@@ -214,14 +219,18 @@ void Controller::update_gameplay_state()
     // Make the move
     auto move_vector = player_move;
     auto new_game_state = this->current_game_state->update(move_vector);
-    // TODO check for game over
-    // If so, change controller state and set screen to game over
 
     this->game_states.push_back(std::make_shared<game::GameState>(new_game_state));
     ++this->current_game_state_idx;
 
     set_current_game_state();
     is_in_update.unlock();
+    if (current_game_state->has_won() || current_game_state->has_lost()){
+        std::cerr << "Info: game end, number of states: " << game_states.size() << std::endl;
+        log_states();
+        this->state = ControllerState::StateNotSetup;
+        emit end_game(current_game_state->has_won() ? GameResult::Win : GameResult::Loose);
+    }
 }
 
 void Controller::update_replay_state()
@@ -234,14 +243,18 @@ void Controller::update_replay_state()
 
         switch (key_event.key) {
             case Qt::Key_Right:
-                ++this->current_game_state_idx;
+                std::cerr << "Info: replay: right key" << std::endl;
+                this->current_game_state_idx += 15;
                 break;
             case Qt::Key_Left:
-                --this->current_game_state_idx;
+                std::cerr << "Info: replay: left key" << std::endl;
+                this->current_game_state_idx -= 15;
                 break;
             default:
                 break;
         }
+
+        std::cerr << "Info: current game state idx = " << current_game_state_idx << std::endl;
     }
     set_current_game_state();
 }
@@ -255,6 +268,7 @@ void Controller::update_pause_state()
 
 void Controller::set_current_game_state()
 {
+    // If current_game_state index is out of bounds correct it
     if (this->current_game_state_idx >= this->game_states.size()) {
         this->current_game_state_idx = this->game_states.size() - 1;
     } else if (this->current_game_state_idx < 0) {
@@ -274,7 +288,7 @@ bool Controller::create_log_file(const std::string &user, const std::string &map
     }
 
     // Create log file
-    this->log_file = std::fstream(user + ".log", std::ios::in | std::ios::out | std::ios::app);
+    this->log_file = std::fstream(user + ".log", std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
     if (! log_file.is_open()) {
         std::cerr << "Error: could not create log file\n";
         map_file.close();
@@ -288,12 +302,16 @@ bool Controller::create_log_file(const std::string &user, const std::string &map
         log_file << line;
     }
 
-    log_file << std::endl;
-
     // Move the file pointer to the beginning
     log_file.seekg(0, std::ios::beg);
 
     map_file.close();
     return true;
+}
+
+void Controller::log_states() {
+    for (const auto& state : this->game_states){
+        game::write_state_to_stream(this->log_file, *state);
+    }
 }
 }    // namespace ctl

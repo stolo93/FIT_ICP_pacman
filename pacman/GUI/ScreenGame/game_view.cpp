@@ -21,6 +21,9 @@ void GameView::keyPressEvent(QKeyEvent *event)
         case Qt::Key::Key_Right:
         case Qt::Key::Key_Up:
         case Qt::Key::Key_Down:
+        case Qt::Key::Key_P:
+        case Qt::Key::Key_R:
+        case Qt::Key::Key_Escape:
             emit this->user_event(event);
             break;
         default:

@@ -22,7 +22,7 @@
 
 namespace view
 {
-enum class ScreenNumber { MainMenu = 0, NewGame = 1, LoadGame = 2, GameScreen = 3 };
+enum class ScreenNumber { MainMenu = 0, NewGame = 1, LoadGame = 2, GameScreen = 3, EndScreen = 4 };
 
 class PacmanMainWindow : public QMainWindow
 {
@@ -45,6 +45,8 @@ signals:
 
     void init_scene(std::shared_ptr<game::GameState> game_state);
 
+    void label_set_text(const QString& text);
+
 public slots:
 
     /**
@@ -60,6 +62,8 @@ public slots:
      * @param game_state
      */
     void on_init_game_screen(const std::shared_ptr<game::GameState> game_state);
+
+    void on_end_game(ctl::GameResult result);
 
 private slots:
 

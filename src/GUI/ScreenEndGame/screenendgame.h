@@ -1,25 +1,40 @@
-//
-// Created by samuel on 7.5.2023.
-//
+/**
+ * @file screenendgame.h
+ * @author Samuel Stolarik
+ * @date 2023-05-06
+ * Project - ICP - project PacMan
+ */
 
 #ifndef PACMAN_SCREENENDGAME_H
 #define PACMAN_SCREENENDGAME_H
-#include <QWidget>
 #include <QLabel>
+#include <QWidget>
 
-namespace view{
-class ScreenEndGame : public QWidget {
+namespace view
+{
+/**
+ * @class ScreenEndGame
+ */
+class ScreenEndGame : public QWidget
+{
 
-Q_OBJECT
+    Q_OBJECT
 public:
     ScreenEndGame(QWidget *parent = nullptr);
 public slots:
-    void on_set_text(const QString& text);
+    /**
+     * Display text
+     * @param text
+     */
+    void on_set_text(const QString &text);
 
 private:
-    QLabel *label{};
+    /**
+     * Text label
+     */
+    QLabel *label {};
 };
-}
+}    // namespace view
 
 
-#endif //PACMAN_SCREENENDGAME_H
+#endif    // PACMAN_SCREENENDGAME_H

@@ -1,33 +1,58 @@
-//
-// Created by samuel on 7.5.2023.
-//
+/**
+ * @file livesdisplayimage.h
+ * @author Samuel Stolarik
+ * @date 2023-05-05
+ * Project - ICP - project PacMan
+ */
 
 #ifndef PACMAN_LIVESDISPLAYIMAGE_H
 #define PACMAN_LIVESDISPLAYIMAGE_H
 #include <QApplication>
-#include <QWidget>
 #include <QPainter>
 #include <QPixmap>
+#include <QWidget>
 
-namespace view {
+namespace view
+{
 
-    class LivesDisplayImage : public QWidget {
+/**
+ * @class LivesDisplayImage
+ * @brief Graphic live counter with heart emojis
+ */
+class LivesDisplayImage : public QWidget
+{
     Q_OBJECT
 
-    public:
-        explicit LivesDisplayImage(const QString &pixmap_name = ":img/resources/game_objects/heart.png", int count = 1, QWidget *parent = nullptr);
+public:
+    explicit LivesDisplayImage(const QString &pixmap_name = ":img/resources/game_objects/heart.png", int count = 1,
+                               QWidget *parent = nullptr);
 
-        void update_lives_count(int count);
+    /**
+     * Update lives count
+     * @param count
+     */
+    void update_lives_count(int count);
 
-    protected:
-        void paintEvent(QPaintEvent *event) override;
+protected:
+    /**
+     * Draw lives
+     * @param event
+     */
+    void paintEvent(QPaintEvent *event) override;
 
-    private:
-        QPixmap m_pixmap;
-        int m_count;
-    };
+private:
+    /**
+     * Heart emoji
+     */
+    QPixmap m_pixmap;
+
+    /**
+     * Live count
+     */
+    int m_count;
+};
 
 
-} // view
+}    // namespace view
 
-#endif //PACMAN_LIVESDISPLAYIMAGE_H
+#endif    // PACMAN_LIVESDISPLAYIMAGE_H

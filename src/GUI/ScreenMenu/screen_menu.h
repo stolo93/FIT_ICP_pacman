@@ -10,6 +10,9 @@
 
 #include <QWidget>
 
+/**
+ * @class ScreenMenu
+ */
 class ScreenMenu : public QWidget
 {
     Q_OBJECT
@@ -18,11 +21,25 @@ public:
     explicit ScreenMenu(QWidget *parent = nullptr);
 
 signals:
+    /**
+     * Choose new game screen
+     */
     void go_to_new_game_screen();
+
+    /**
+     * Choose load game screen
+     */
     void go_to_load_game_screen();
 
 private slots:
+    /**
+     * Handle new game button
+     */
     void on_new_game_button();
+
+    /**
+     * Handle load game button
+     */
     void on_load_game_button();
 };
 

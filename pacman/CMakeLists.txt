@@ -38,7 +38,8 @@ set(PROJECT_SOURCES
         GUI/GraphicItems/item_ghost.cpp
         GUI/GraphicItems/item_wall.cpp
         GUI/GraphicItems/item_target.cpp
-        GUI/GraphicItems/item_key.cpp)
+        GUI/GraphicItems/item_key.cpp
+        GameState/astar.h GameState/astar.cpp)
 
 include_directories(include)
 add_compile_definitions(OVERFLOW_CHECKS)

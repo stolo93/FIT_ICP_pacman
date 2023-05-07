@@ -159,6 +159,7 @@ Pos player_wall_check(Pos player_pos, Pos direction, const QExplicitlySharedData
 
     return new_player_pos;
 }
+
 GameState GameState::update(Pos direction)
 {
     static const int GHOST_TIMEOUT = 30;
@@ -180,44 +181,37 @@ GameState GameState::update(Pos direction)
 
 
     auto new_ghosts = ghosts;
-    for (auto& ghost : new_ghosts){
+    for (auto &ghost : new_ghosts) {
         if (is_box_and_circle_intersecting(ghost.position, player.position)) {
             new_game_state = GameStatus::Lost;
             break;
         }
-        if (this->state_number % GHOST_TIMEOUT == 0){
+        if (this->state_number % GHOST_TIMEOUT == 0) {
             auto new_position = ghost.get_next_pos(map, player.position);
-            if (! is_wall(map, new_position)){
-                ghost.position = new_position;
-            }
+            if (! is_wall(map, new_position)) { ghost.position = new_position; }
         }
-
     }
 
     auto new_keys = keys;
-    auto keys_to_remove = std::vector<int>();
-
-    for (int i = 0; i < keys.length(); ++i) {
-        if (is_box_and_circle_intersecting(keys[i], player.position)) { keys_to_remove.push_back(i); }
-    }
-
-    // If we delete an element it will shift all the following elements we need to account for that;
-    int delete_shift = 0;
-    if (! keys_to_remove.empty()) {
-        for (int key_index : keys_to_remove) {
-            new_keys.remove(key_index - delete_shift);
-            delete_shift++;
+    for (int i = 0; i < new_keys.length();) {
+        if (is_box_and_circle_intersecting(keys[i], player.position)) {
+            new_keys.remove(i);
+        } else {
+            i++;
         }
     }
 
     return {map, new_game_state, state_number + 1, new_ghosts, new_player_pos, exit, new_keys};
 }
+
 bool GameState::has_lost()
 {
     return this->state == GameStatus::Lost;
 }
+
 bool GameState::has_won()
 {
     return this->state == GameStatus::Won;
 }
+
 }    // namespace game

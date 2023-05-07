@@ -9,7 +9,7 @@
 namespace game
 {
 
-enum class SerializationTags : std::uint8_t { StateTag = 0x01, GhostTag = 0x02, PlayerTag = 0x3 };
+enum class SerializationTags : std::uint8_t { StateTag = 0x1F, GhostTag = 0x2F, PlayerTag = 0x3F };
 
 std::optional<std::pair<QExplicitlySharedDataPointer<Map>, GameState>> parse_map_from_stream(std::istream &input);
 bool write_map_to_stream(std::ostream &output);

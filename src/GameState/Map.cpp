@@ -1,3 +1,10 @@
+/**
+* @file Map.cpp
+* @author Adam Bezák (xbezak02)
+* @date 2023-05-07
+* Project - ICP - project PacMan
+ */
+
 #include "Map.h"
 
 #include <utility>
@@ -19,6 +26,7 @@ const QVector<QVector<MapElement>> &Map::get_map() const
 {
     return this->map;
 }
+
 Map::Map(std::size_t width, std::size_t height, QVector<QVector<MapElement>> map)
     : width(width), height(height), map(std::move(map))
 {

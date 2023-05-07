@@ -1,13 +1,27 @@
+/**
+ * @file GameState.cpp
+ * @author Adam Bezák (xbezak02)
+ * @date 2023-05-07
+ * Project - ICP - project PacMan
+ */
+
 #include "GameState.h"
 
 #include <utility>
 
-// Helper constant signifying 1/2
+/**
+ *
+ */
 const game::FixedPointNum<std::int64_t, 3> ONE_HALF = game::FixedPointNum<std::int64_t, 3>(1) / 2;
 
 namespace game
 {
-// All boxes are 8 pixels or 1 tile high and wide
+/**
+ * Checks if 2 boxes of width and height 1 are overlapping
+ * @param box_1 The position of the top left corner of the first box
+ * @param box_2 The position of the top left corner of the second box
+ * @return true if the boxes are overlapping
+ */
 bool are_boxes_intersecting(Pos box_1, Pos box_2)
 {
     bool is_x_intersecting = box_1.x > box_2.x && box_1.x < (box_2.x + 1);
@@ -16,6 +30,12 @@ bool are_boxes_intersecting(Pos box_1, Pos box_2)
     return is_x_intersecting && is_y_intersecting;
 }
 
+/**
+ * Checks of a box of width 1 and a circle of diameter 1 are overlapping
+ * @param box The position of the top left corner of the box
+ * @param circle The position of the top left of the box the circle is contained in
+ * @return true if the shapes are overlapping
+ */
 bool is_box_and_circle_intersecting(Pos box, Pos circle)
 {
     // https://stackoverflow.com/a/402010
@@ -46,6 +66,12 @@ bool is_box_and_circle_intersecting(Pos box, Pos circle)
     return corner_distance_squared <= pacman_radius * pacman_radius;
 }
 
+/**
+ * Gets the MapElement at the given position.
+ * @param map The map to look into.
+ * @param pos The position we're querying.
+ * @return The MapElement at the map location. Wall if we're looking out of bounds.
+ */
 MapElement get_map_element(const QExplicitlySharedDataPointer<Map> &map, Pos pos)
 {
     if (pos.x < 0 || pos.x >= map->get_width()) { return MapElement::Wall; }
@@ -55,6 +81,12 @@ MapElement get_map_element(const QExplicitlySharedDataPointer<Map> &map, Pos pos
     return map->get_map()[pos.y.floor()][pos.x.floor()];
 }
 
+/**
+ * Checks if the given coordinate is pointing at wall.
+ * @param map The map to look into.
+ * @param pos The coordinate we're checking.
+ * @return true if the current coordinate is pointing at a wall.
+ */
 bool is_wall(const QExplicitlySharedDataPointer<Map> &map, Pos pos)
 {
     return get_map_element(map, pos) == MapElement::Wall;

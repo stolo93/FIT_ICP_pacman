@@ -1,5 +1,5 @@
 /**
- * @file screen_game.h
+ * @file parse.h
  * @date 2023-04-27
  * Project - ICP - project PacMan
  */

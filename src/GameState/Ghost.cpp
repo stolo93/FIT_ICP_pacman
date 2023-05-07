@@ -1,3 +1,11 @@
+/**
+* @file Ghost.cpp
+* @author Adam Bezák (xbezak02)
+* @date 2023-05-07
+* Project - ICP - project PacMan
+*/
+
+
 #include "Ghost.h"
 
 #include "astar.h"

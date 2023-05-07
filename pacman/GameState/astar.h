@@ -7,40 +7,49 @@
 
 #include "Map.h"
 #include "Pos.h"
-#include <vector>
+
 #include <QExplicitlySharedDataPointer>
+#include <vector>
 
-namespace game {
+namespace game
+{
 
-    struct PathNode {
-        Pos position;
-        double g, h, f;
+struct PathNode {
+    Pos position;
+    double g, h, f;
 
-        PathNode(Pos position, double g, double h);
+    PathNode();
 
-        PathNode(const PathNode &other) noexcept;
+    PathNode(Pos position, double g, double h);
 
-        bool operator==(const PathNode& other) const;
+    PathNode(const PathNode &other) noexcept;
 
-        PathNode& operator=(const PathNode& other);
+    PathNode(const PathNode &&other) noexcept;
 
-        [[nodiscard]] std::vector<PathNode> generate_neighbours(const QExplicitlySharedDataPointer<Map> &map, const Pos& goal) const;
+    bool operator==(const PathNode &other) const;
 
-        static bool is_node_valid(QExplicitlySharedDataPointer<Map> map, const PathNode& node);
-    };
+    PathNode &operator=(const PathNode &other);
 
-    class A_Star {
-    public:
-        static std::vector<Pos> a_star(const QExplicitlySharedDataPointer<Map>& map, const Pos& start, const Pos& goal);
+    [[nodiscard]] std::vector<PathNode> generate_neighbours(const QExplicitlySharedDataPointer<Map> &map,
+                                                            const Pos &goal) const;
 
-        static std::vector<Pos> dumb_move(const QExplicitlySharedDataPointer<Map>& map, const Pos& start, const Pos& goal);
+    static bool is_node_valid(QExplicitlySharedDataPointer<Map> map, const PathNode &node);
+};
 
-        static inline double euclidean_distance(const Pos &a, const Pos &b);
-    protected:
+class A_Star
+{
+public:
+    static std::vector<Pos> a_star(const QExplicitlySharedDataPointer<Map> &map, const Pos &start, const Pos &goal);
 
-        static std::vector<Pos> reconstruct_path(const PathNode& start, const PathNode& goal, const std::unordered_map<PathNode, PathNode>& came_from);
-    };
+    static std::vector<Pos> dumb_move(const QExplicitlySharedDataPointer<Map> &map, const Pos &start, const Pos &goal);
 
-} // game
+    static inline double euclidean_distance(const Pos &a, const Pos &b);
 
-#endif //PACMAN_ASTAR_H
+protected:
+    static std::vector<Pos> reconstruct_path(const PathNode &start, const PathNode &goal,
+                                             const std::unordered_map<PathNode, PathNode> &came_from);
+};
+
+}    // namespace game
+
+#endif    // PACMAN_ASTAR_H

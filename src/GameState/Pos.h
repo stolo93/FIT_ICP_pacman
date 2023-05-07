@@ -1,3 +1,9 @@
+/**
+* @file Pos.h
+* @date 2023-04-26
+* Project - ICP - project PacMan
+ */
+
 #ifndef PACMAN_POS_H
 #define PACMAN_POS_H
 
@@ -11,11 +17,12 @@
 namespace game::internal
 {
 
-/// Creates a mask with first *n* bits set
-/// \tparam integral The integral type the mask is supposed to work on
-/// \param n THe numbers of bits to set to 1
-/// \return A *integral* with the first *n* bits set
-template<typename integral>
+/** Creates a mask with first *n* bits set.
+* @tparam integral The integral type the mask is supposed to work on.
+* @param n THe numbers of bits to set to 1.
+* @return A *integral* with the first *n* bits set.
+*/
+ template<typename integral>
 constexpr integral create_frac_mask(unsigned int n)
 {
     if (n == 0) { return 0; }
@@ -56,6 +63,11 @@ constexpr bool would_multiplication_overflow(T lhs, T rhs)
 namespace game
 {
 
+/**
+ * A fixed point integer.
+ * @tparam Store The integer type to store the fixed point number in (defines the signedness and byte size of the integer).
+ * @tparam binary_decimals The amount of bits to use for the decimal part of the fixed point integer
+ */
 template<typename Store, unsigned int binary_decimals>
 class FixedPointNum final
 {
@@ -64,15 +76,24 @@ class FixedPointNum final
     Store store;
 
 public:
+    /**
+     * The amount of bits left for the integer part of the integer
+     */
     static constexpr unsigned int IntegerBits =
             (sizeof(Store) * CHAR_BIT - binary_decimals) - std::numeric_limits<Store>::is_signed;
 
-    // Initializes a fixed point number with a zero
+    /**
+     * Initializes a fixed point number with a zero.
+     */
     constexpr FixedPointNum()
     {
         this->store = 0;
     };
 
+    /**
+     * Constructs a fixed point with the given integer value.
+     * @param value
+     */
     // Implicitly convert integers into FixedPointNumbers for ease of use
     // NOLINTNEXTLINE(google-explicit-constructor)
     constexpr FixedPointNum(Store value)
@@ -92,6 +113,11 @@ public:
         store = value << binary_decimals;
     };
 
+    /**
+     * Converts a binary decimal to a different amount of binary decimals.
+     * @tparam other_decimals The amount of decimals the source fixed point number is made of.
+     * @param other The fixed point number we're changing.
+     */
     // Constructor for changing fixed point number precision
     template<unsigned int other_decimals>
     // NOLINTNEXTLINE(google-explicit-constructor)
@@ -100,6 +126,10 @@ public:
         *this = shift_towards_self(other);
     }
 
+    /**
+     * Creates a fixed point decimal from a float.
+     * @param num The double to parse
+     */
     static constexpr FixedPointNum<Store, binary_decimals> from_float(double num)
     {
 
@@ -111,6 +141,10 @@ public:
         return FixedPointNum(num) / (1 << binary_decimals);
     }
 
+    /**
+     * Create a new fixed point number with the given underlying bits.
+     * @param bits
+     */
     static constexpr FixedPointNum<Store, binary_decimals> from_bits(Store bits)
     {
         FixedPointNum<Store, binary_decimals> new_num = FixedPointNum();
@@ -118,11 +152,18 @@ public:
         return new_num;
     };
 
+    /**
+     * Gets the bits underlying data the fixed point number is made of.
+     */
     [[nodiscard]] constexpr Store to_bits() const
     {
         return this->store;
     }
 
+    /**
+     * Converts the fixed point number to a floating point type.
+     * @tparam Float The floating point type to convert to (Will compile if given integers but will loose precision)
+     */
     template<class Float>
     constexpr Float to_floating_point() const
     {
@@ -185,6 +226,10 @@ public:
         return *this * FixedPointNum(rhs);
     }
 
+    /**
+     * Returns the fractional part of the fixed point number
+     * @returns The fraction.
+     */
     [[nodiscard]] constexpr FixedPointNum<Store, binary_decimals> frac() const noexcept
     {
         auto mask = game::internal::create_frac_mask<Store>(binary_decimals);
@@ -192,7 +237,10 @@ public:
         return from_bits(store & mask);
     }
 
-
+    /**
+     * Returns the integer part of the fixed point number
+     * @returns An integer.
+     */
     [[nodiscard]] constexpr FixedPointNum<Store, binary_decimals> integer() const noexcept
     {
         auto mask = game::internal::create_frac_mask<Store>(binary_decimals);
@@ -331,6 +379,9 @@ private:
     }
 };
 
+/**
+ * A 2d vector
+ */
 class Pos
 {
 
@@ -340,6 +391,9 @@ public:
     FixedPointNum<std::int64_t, 3> x;
     FixedPointNum<std::int64_t, 3> y;
 
+    /**
+     * Zero initializes the position
+     */
     constexpr Pos() noexcept : x(0), y(0) {};
     constexpr Pos(game::FixedPointNum<int64_t, 3> x, game::FixedPointNum<int64_t, 3> y) noexcept : x(x), y(y) {}
 

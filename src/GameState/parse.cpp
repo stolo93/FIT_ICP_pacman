@@ -1,3 +1,9 @@
+/**
+* @file parse.cpp
+* @date 2023-04-27
+* Project - ICP - project PacMan
+*/
+
 #include "parse.h"
 
 #include "boost/endian/buffers.hpp"
@@ -21,6 +27,11 @@
     (stream).write((const char *) (buf).data(), sizeof(buf));                                                          \
     if (! stream) { return {}; }
 
+/**
+ * Parses a decimal from a stream.
+ * @param input the stream to parse from.
+ * @return An optional containing the parsed number if successful, an empty one otherwise.
+ */
 std::optional<std::size_t> parse_number_from_stream(std::istream &input)
 {
     auto text_value = std::string();
@@ -45,7 +56,11 @@ std::optional<std::size_t> parse_number_from_stream(std::istream &input)
 
 enum class LineEnd { EndOfFile, NewLine, Character };
 
-//
+/**
+ * Attempts to consume the end of line will manage crcf line endings along with unix line endings.
+ * @param input The stream to read the line ending from.
+ * @return The result of the parsing operation.
+ */
 LineEnd parse_line_end(std::istream &input)
 {
     char character;

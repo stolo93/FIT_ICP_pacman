@@ -82,13 +82,19 @@ void GameView::on_update_scene(std::shared_ptr<game::GameState> game_state)
     }
 
     // If some of the keys have been collected remove them
-    int key_count_diff = keys.size() - game_state->keys.size();
-    if (key_count_diff != 0){
-        for (int i = 0; i < key_count_diff; i++){
-            scene->removeItem(keys.back());
-            keys.pop_back();
+    if (keys.size() != game_state->keys.size()) {
+        for (const auto &key: keys) {
+            scene->removeItem(key);
+            delete key;
+        }
+        keys.clear();
+        for (int i = 0; i < game_state->keys.size(); i++) {
+            auto new_key = new GraphicsItemKey();
+            scene->addItem(new_key);
+            keys.push_back(new_key);
         }
     }
+
 
     for (int i = 0; i < keys.size(); i++){
         pos_x = game_state->keys[i].x.to_floating_point<qreal>();

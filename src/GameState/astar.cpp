@@ -1,6 +1,9 @@
-//
-// Created by samuel on 7.5.2023.
-//
+/**
+ * @file astar.cpp
+ * @author Samuel Stolarik
+ * @date 2023-05-06
+ * Project - ICP - project PacMan
+ */
 
 #include "astar.h"
 

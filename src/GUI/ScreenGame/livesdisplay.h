@@ -1,26 +1,46 @@
-//
-// Created by samuel on 7.5.2023.
-//
+/**
+ * @file livesdisplay.h
+ * @author Samuel Stolarik
+ * @date 2023-05-05
+ * Project - ICP - project PacMan
+ */
 
 #ifndef PACMAN_LIVESDISPLAY_H
 #define PACMAN_LIVESDISPLAY_H
-#include <QWidget>
 #include <QLabel>
+#include <QWidget>
 
-namespace view {
+namespace view
+{
 
-    class LivesDisplayer : public QWidget {
+/**
+ * @class LivesDisplayer
+ * @brief Text only lives counter
+ */
+class LivesDisplayer : public QWidget
+{
     Q_OBJECT
-    public:
-        LivesDisplayer(QWidget* parent = nullptr, uint8_t lives = 0);
+public:
+    LivesDisplayer(QWidget *parent = nullptr, uint8_t lives = 0);
 
-        void update_lives_count(uint8_t lives);
+    /**
+     * Update lives count
+     * @param lives
+     */
+    void update_lives_count(uint8_t lives);
 
-    private:
-        uint8_t lives_count;
-        QLabel *lives_label;
-    };
+private:
+    /**
+     * Lives count
+     */
+    uint8_t lives_count;
 
-} // view
+    /**
+     * Lives count label
+     */
+    QLabel *lives_label;
+};
 
-#endif //PACMAN_LIVESDISPLAY_H
+}    // namespace view
+
+#endif    // PACMAN_LIVESDISPLAY_H

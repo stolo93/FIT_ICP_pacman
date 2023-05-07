@@ -1,6 +1,9 @@
-//
-// Created by samuel on 7.5.2023.
-//
+/**
+ * @file astar.h
+ * @author Samuel Stolarik
+ * @date 2023-05-06
+ * Project - ICP - project PacMan
+ */
 
 #ifndef PACMAN_ASTAR_H
 #define PACMAN_ASTAR_H
@@ -14,6 +17,10 @@
 namespace game
 {
 
+/**
+ * @class PathNode
+ * @brief Node for A* path search
+ */
 struct PathNode {
     Pos position;
     double g, h, f;
@@ -36,6 +43,10 @@ struct PathNode {
     static bool is_node_valid(QExplicitlySharedDataPointer<Map> map, const PathNode &node);
 };
 
+/**
+ * @class A*
+ * @brief A* functions
+ */
 class A_Star
 {
 public:

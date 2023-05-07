@@ -20,22 +20,39 @@
 #include <memory>
 #include <mutex>
 
+/**
+ * @namespace ctl
+ * @brief Controller namespace
+ */
 namespace ctl
 {
+
 
 const int QUEUE_CAPACITY = 1000;
 using UserKeyEventQueue = boost::lockfree::queue<KeyEvent>;
 
 
+/**
+ * @class Controller
+ * @brief Controller part of the design pattern
+ */
 class Controller : public QObject
 {
     Q_OBJECT
 
 public:
+    /**
+     * Create Controller object
+     * @param parent
+     */
     explicit Controller(QObject *parent = nullptr);
 
     ~Controller();
 
+    /**
+     * Connect all required slots and signals with @p main_window
+     * @param main_window
+     */
     void connect_main_window(const view::PacmanMainWindow *main_window) const;
 
 signals:
@@ -93,16 +110,59 @@ private slots:
     void on_timer_timeout();
 
 private:
+    /**
+     * Current state of the controller
+     */
     ControllerState state {ControllerState::StateNotSetup};
+
+    /**
+     * Timer
+     */
     QTimer *timer;
+
+    /**
+     * User name of the player
+     */
     std::string user_name;
+
+    /**
+     * Current game state
+     */
     std::shared_ptr<game::GameState> current_game_state {};
+
+    /**
+     * All game states
+     */
     std::vector<std::shared_ptr<game::GameState>> game_states {};
+
+    /**
+     * Current game state index
+     */
     int current_game_state_idx {};
+
+    /**
+     * Map
+     */
     QExplicitlySharedDataPointer<game::Map> game_map {};
+
+    /**
+     * Queue of incoming keyboard events
+     */
     std::unique_ptr<UserKeyEventQueue> key_event_queue;
+
+    /**
+     * Player move
+     */
     game::Pos player_move;
+
+    /**
+     * Mutex for synchronising updates
+     */
     std::mutex is_in_update;
+
+    /**
+     * Log file
+     */
     std::fstream log_file {};
 
     /**

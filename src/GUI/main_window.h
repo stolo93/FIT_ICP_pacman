@@ -20,10 +20,22 @@
 #include <memory>
 #include <string>
 
+/**
+ * @namespace view
+ * @brief Everything contained in the GUI and game view
+ */
 namespace view
 {
+/**
+ * @class ScreenNumber
+ * @brief Screen Number enumeration
+ */
 enum class ScreenNumber { MainMenu = 0, NewGame = 1, LoadGame = 2, GameScreen = 3, EndScreen = 4 };
 
+/**
+ * @class PacmanMainWindow
+ * @brief The wholesome main window, containing all necessary screens
+ */
 class PacmanMainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -33,19 +45,48 @@ public:
 
 signals:
 
+    /**
+     * Emit start game
+     * @param user_name
+     * @param map_file_name
+     */
     void start_game(const std::string &user_name, const std::string &map_file_name);
 
+    /**
+     * Emit start replay
+     * @param log_file_name
+     */
     void start_replay(const std::string &log_file_name);
 
+    /**
+     * Emit user event
+     * @param event
+     */
     void user_event(QKeyEvent *event);
 
+    /**
+     * Emit set controller state
+     * @param state
+     */
     void set_controller_state(ctl::ControllerState state);
 
+    /**
+     * Emit update scene
+     * @param game_state
+     */
     void update_scene(std::shared_ptr<game::GameState> game_state);
 
+    /**
+     * Emit initialize scene
+     * @param game_state
+     */
     void init_scene(std::shared_ptr<game::GameState> game_state);
 
-    void label_set_text(const QString& text);
+    /**
+     * Send text to the end screen label
+     * @param text
+     */
+    void label_set_text(const QString &text);
 
 public slots:
 
@@ -63,6 +104,10 @@ public slots:
      */
     void on_init_game_screen(const std::shared_ptr<game::GameState> game_state);
 
+    /**
+     * Display end screen widget
+     * @param result
+     */
     void on_end_game(ctl::GameResult result);
 
 private slots:
@@ -110,6 +155,9 @@ private slots:
     void on_set_controller_state(ctl::ControllerState state);
 
 private:
+    /**
+     * All screens stacked
+     */
     QStackedWidget *screens;
 };
 }    // namespace view

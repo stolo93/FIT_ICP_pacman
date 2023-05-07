@@ -11,28 +11,52 @@
 
 #include <QWidget>
 
-class ScreenLoadGame : public QWidget {
-Q_OBJECT
+/**
+ * @class ScreenLoadGame
+ */
+class ScreenLoadGame : public QWidget
+{
+    Q_OBJECT
 
 public:
     explicit ScreenLoadGame(QWidget *parent = nullptr);
 
 signals:
 
+    /**
+     * Go back button clicked
+     */
     void go_to_home();
 
+    /**
+     * Start game button clicked
+     * @param file_name_map
+     */
     void replay_game(std::string &file_name_map);
 
 private slots:
 
+    /**
+     * Handle go back button
+     */
     void on_go_back_button();
 
+    /**
+     * Handle file entered
+     * @param file_name
+     */
     void on_file_entered(std::string &file_name);
 
+    /**
+     * Handle start game button
+     */
     void on_start_game_button_clicked();
 
 private:
-    std::string map_file_name{};
+    /**
+     * A map file name
+     */
+    std::string map_file_name {};
 };
 
 

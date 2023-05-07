@@ -10,6 +10,10 @@
 
 #include <QWidget>
 
+/**
+ * @class MainMenu
+ * @brief Main menu class
+ */
 class MainMenu : public QWidget
 {
     Q_OBJECT

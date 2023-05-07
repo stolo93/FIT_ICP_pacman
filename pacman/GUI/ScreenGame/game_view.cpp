@@ -115,11 +115,21 @@ void GameView::insert_map_objects_to_scene(const game::Map &map)
 {
     for (int i = 0; i < map.get_width(); i++){
         for (int j = 0; j < map.get_height(); j++){
-            if (map.get_map()[j][i] == game::MapElement::Wall){
-                // TODO add start and target places
-                auto new_wall = new GraphicsItemWall();
-                new_wall->setPos(i, j);
-                scene->addItem(new_wall);
+            switch (map.get_map()[j][i]) {
+                case game::MapElement::Wall:{
+                    auto new_wall = new GraphicsItemWall();
+                    new_wall->setPos(i, j);
+                    scene->addItem(new_wall);
+                    break;
+                }
+                case game::MapElement::End:{
+                    auto new_end = new GraphicsItemTarget();
+                    new_end->setPos(i,j);
+                    scene->addItem(new_end);
+                    break;
+                }
+                default:
+                    break;
             }
         }
     }

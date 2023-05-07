@@ -14,6 +14,8 @@ namespace ctl
 
 enum class ControllerState { StateReplay, StateGameplay, StatePaused, StateNotSetup };
 
+enum class GameResult {Win, Loose};
+
 enum class KeyEventType { KeyPress, KeyRelease };
 
 struct KeyEvent {

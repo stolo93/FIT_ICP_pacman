@@ -10,11 +10,11 @@
 
 #include "../GUI/main_window.h"
 #include "../GameState/GameState.h"
-#include "../include/boost/lockfree/queue.hpp"
 #include "../pacman.h"
 
 #include <QKeyEvent>
 #include <QObject>
+#include <QQueue>
 #include <QTimer>
 #include <fstream>
 #include <memory>
@@ -27,9 +27,7 @@
 namespace ctl
 {
 
-
-const int QUEUE_CAPACITY = 1000;
-using UserKeyEventQueue = boost::lockfree::queue<KeyEvent>;
+using UserKeyEventQueue = QQueue<KeyEvent>;
 
 
 /**

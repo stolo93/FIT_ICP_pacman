@@ -18,8 +18,7 @@
 namespace ctl
 {
 Controller::Controller(QObject *parent)
-    : QObject(parent), key_event_queue(std::make_unique<UserKeyEventQueue>(ctl::QUEUE_CAPACITY)),
-      player_move(game::Pos()), is_in_update()
+    : QObject(parent), key_event_queue(std::make_unique<UserKeyEventQueue>()), player_move(game::Pos()), is_in_update()
 {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Controller::on_timer_timeout);
@@ -161,10 +160,10 @@ void Controller::on_set_controller_state(ControllerState new_state)
 void Controller::on_user_event(QKeyEvent *event)
 {
     if (event->type() == QKeyEvent::KeyPress) {
-        this->key_event_queue->push(KeyEvent {ctl::KeyEventType::KeyPress, static_cast<Qt::Key>(event->key())});
+        this->key_event_queue->enqueue(KeyEvent {ctl::KeyEventType::KeyPress, static_cast<Qt::Key>(event->key())});
 
     } else if (event->type() == QKeyEvent::KeyRelease) {
-        this->key_event_queue->push(KeyEvent {ctl::KeyEventType::KeyRelease, static_cast<Qt::Key>(event->key())});
+        this->key_event_queue->enqueue(KeyEvent {ctl::KeyEventType::KeyRelease, static_cast<Qt::Key>(event->key())});
     }
 }
 
@@ -183,7 +182,7 @@ void Controller::update_gameplay_state()
 
     // Process key events
     while (! this->key_event_queue->empty()) {
-        this->key_event_queue->pop(key_event);
+        key_event = this->key_event_queue->dequeue();
 
         if (key_event.event_type == ctl::KeyEventType::KeyRelease) {
             switch (key_event.key) {
@@ -239,7 +238,7 @@ void Controller::update_replay_state()
 {
     KeyEvent key_event {};
     while (! this->key_event_queue->empty()) {
-        this->key_event_queue->pop(key_event);
+        key_event = this->key_event_queue->dequeue();
         // Ignore key release
         if (key_event.event_type == KeyEventType::KeyRelease) { continue; }
 
@@ -265,7 +264,7 @@ void Controller::update_pause_state()
 {
     KeyEvent event {};
     // clear input queue
-    while (! this->key_event_queue->empty()) { this->key_event_queue->pop(event); }
+    while (! this->key_event_queue->empty()) { this->key_event_queue->dequeue(); }
 }
 
 void Controller::set_current_game_state()

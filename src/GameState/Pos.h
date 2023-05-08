@@ -442,6 +442,16 @@ public:
         *this = *this * rhs;
         return *this;
     }
+
+    constexpr bool operator==(const Pos &other) const
+    {
+        return this->x == other.x && this->y == other.y;
+    }
+
+    constexpr bool operator!=(const Pos &other) const
+    {
+        return !(*this == other);
+    }
 };
 
 }    // namespace game

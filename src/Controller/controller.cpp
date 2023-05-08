@@ -236,6 +236,7 @@ void Controller::update_gameplay_state()
 
 void Controller::update_replay_state()
 {
+    const static int8_t REPLAY_STEP = 15;
     KeyEvent key_event {};
     while (! this->key_event_queue->empty()) {
         key_event = this->key_event_queue->dequeue();
@@ -244,12 +245,14 @@ void Controller::update_replay_state()
 
         switch (key_event.key) {
             case Qt::Key_Right:
-                std::cerr << "Info: replay: right key" << std::endl;
-                this->current_game_state_idx += 15;
+                this->current_game_state_idx += REPLAY_STEP;
                 break;
             case Qt::Key_Left:
-                std::cerr << "Info: replay: left key" << std::endl;
-                this->current_game_state_idx -= 15;
+                if (this->current_game_state_idx < REPLAY_STEP) {
+                    current_game_state_idx = 0;
+                } else {
+                    this->current_game_state_idx -= REPLAY_STEP;
+                }
                 break;
             default:
                 break;

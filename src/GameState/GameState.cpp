@@ -94,12 +94,19 @@ bool is_wall(const QExplicitlySharedDataPointer<Map> &map, Pos pos)
 
 
 GameState::GameState(QExplicitlySharedDataPointer<Map> map, GameStatus status, uint64_t state_number,
-                     QVector<Ghost> ghosts,
-                     Player player, uint8_t player_lives, Pos exit, QVector<Pos> keys)
+                     QVector<Ghost> ghosts, Player player, uint8_t player_lives, Pos exit, QVector<Pos> keys)
     : map(std::move(map)), state(status), state_number(state_number), ghosts(std::move(ghosts)), player(player),
-      exit(exit), keys(std::move(keys)), player_lives(player_lives) {
+      exit(exit), keys(std::move(keys)), player_lives(player_lives)
+{
 }
 
+/**
+ * Checks around the player position if he's moving into a wall.
+ * @param player_pos The location of the player.
+ * @param direction The direction the player is trying to travel in.
+ * @param map The map the player is in.
+ * @return The movement direction the player should be travelling after being stopped by walls.
+ */
 Pos player_wall_check(Pos player_pos, Pos direction, const QExplicitlySharedDataPointer<Map> &map)
 {
     auto new_player_pos = player_pos + direction;
@@ -192,6 +199,21 @@ Pos player_wall_check(Pos player_pos, Pos direction, const QExplicitlySharedData
     return new_player_pos;
 }
 
+/**
+ * Checks if a ghost is standing in the given position
+ * @param ghosts The list of existing ghosts.
+ * @param position The position we want to check.
+ * @return true if position is pointing to a ghost
+ */
+bool is_ghost_at_position(const QVector<Ghost> &ghosts, Pos position)
+{
+    for (const Ghost &ghost : ghosts) {
+        if (position == ghost.position) { return true; }
+    }
+
+    return false;
+}
+
 GameState GameState::update(Pos direction)
 {
     static const int GHOST_TIMEOUT = 30;
@@ -209,28 +231,29 @@ GameState GameState::update(Pos direction)
         if (keys.empty()) { new_game_state = GameStatus::Won; }
     }
 
-    // Ghost pathfinding goes here
 
     uint8_t new_player_lives = player_lives;
     auto new_ghosts = ghosts;
     for (auto &ghost : new_ghosts) {
-        if (is_box_and_circle_intersecting(ghost.position, player.position)) {
-            if (player_lives == 1){new_game_state = GameStatus::Lost;}
-            else{
+        if (is_box_and_circle_intersecting(ghost.position, new_player_pos)) {
+            if (new_player_lives == 1) {
+                new_game_state = GameStatus::Lost;
+            } else {
                 --new_player_lives;
                 new_player_pos = map->get_player_start_position();
             }
             break;
         }
         if (this->state_number % GHOST_TIMEOUT == 0) {
-            auto new_position = ghost.get_next_pos(map, player.position);
+            auto new_position = ghost.get_next_pos(map, new_player_pos);
+            if (is_ghost_at_position(new_ghosts, new_position)) { continue; }
             if (! is_wall(map, new_position)) { ghost.position = new_position; }
         }
     }
 
     auto new_keys = keys;
     for (int i = 0; i < new_keys.length();) {
-        if (is_box_and_circle_intersecting(keys[i], player.position)) {
+        if (is_box_and_circle_intersecting(new_keys[i], new_player_pos)) {
             new_keys.remove(i);
         } else {
             i++;
@@ -250,7 +273,8 @@ bool GameState::has_won()
     return this->state == GameStatus::Won;
 }
 
-uint8_t GameState::get_life_count() {
+uint8_t GameState::get_life_count()
+{
     return player_lives;
 }
 

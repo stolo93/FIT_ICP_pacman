@@ -9,8 +9,8 @@ run: all
 
 pack: xstola03-xbezak02.zip
 
-xstola03-xbezak02.zip:
-	zip -9 -r xstola03-xbezak02.zip src Makefile Doxyfile README.md examples
+xstola03-xbezak02.zip: src Makefile Doxyfile README.md examples
+	zip -9 -r $@ $^
 
 doc:
 	doxygen Doxyfile
@@ -18,5 +18,5 @@ doc:
 clean:
 	rm -rf ./build
 
-.PHONY: doc run cmake_config all
+.PHONY: doc run cmake_config all clean pack
 
